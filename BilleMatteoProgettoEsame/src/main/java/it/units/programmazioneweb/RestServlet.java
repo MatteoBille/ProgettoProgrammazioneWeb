@@ -2,9 +2,11 @@ package it.units.programmazioneweb;
 
 import com.google.gson.Gson;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -19,17 +21,19 @@ public class RestServlet {
     @Produces(MediaType.APPLICATION_JSON)
     public Response firstResponse() {
         Connection conn = sqliteConnection.connect();
-        StringBuilder response = new StringBuilder();
+        //StringBuilder response = new StringBuilder();
+        JSONArray response = new JSONArray();
+
+
         try (Statement stmt = conn.createStatement()) {
-            String query = "SELECT GeoJsonData FROM Viaggi;";
+            String query = "SELECT IdViaggio,GeoJsonData FROM Viaggi;";
             ResultSet rs = stmt.executeQuery(query);
-            response.append("[");
             while (rs.next()) {
-                response.append(rs.getString("GeoJsonData"));
-                response.append(",");
+                JSONObject jsonObject = new JSONObject(rs.getString("GeoJsonData"));
+                jsonObject.put("id",Integer.toString(rs.getInt("idViaggio")));
+                response.put(jsonObject);
             }
-            response.deleteCharAt(response.length()-1);
-            response.append("]");
+
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         } finally {
@@ -42,4 +46,31 @@ public class RestServlet {
 
         return Response.ok(response.toString()).build();
     }
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getTravelById(@PathParam("id") int id) {
+        Connection conn = sqliteConnection.connect();
+        JSONObject jsonObject=null;
+        try (Statement stmt = conn.createStatement()) {
+            String query = "SELECT IdViaggio,GeoJsonData FROM Viaggi WHERE IdViaggio=="+id+";";
+            ResultSet rs = stmt.executeQuery(query);
+            jsonObject= new JSONObject(rs.getString("GeoJsonData"));
+            jsonObject.put("id",Integer.toString(rs.getInt("idViaggio")));
+
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        } finally {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return Response.ok(jsonObject.toString()).build();
+
+
+    }
+
 }

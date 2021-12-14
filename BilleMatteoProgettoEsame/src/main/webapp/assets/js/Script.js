@@ -1,16 +1,23 @@
-var map = L.map('map').setView([45.624029, 13.789859], 13);
+var map = L.map("map").setView([45.624029, 13.789859], 13);
 
-L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-  attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-  //maxZoom: 18,
-  id: 'mapbox/streets-v11',
-  //tileSize: 512,
-  //zoomOffset: -1,
-  accessToken: 'pk.eyJ1IjoiYmlsbG85NyIsImEiOiJja3d3Y2V5MGEwMjc5MnZwOGFtdjFxMnV0In0.5Fa8yODvSDsZ1b73O-CwRQ'
-}).addTo(map);
+L.tileLayer(
+  "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
+  {
+    attribution:
+      'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    //maxZoom: 18,
+    id: "mapbox/streets-v11",
+    //tileSize: 512,
+    //zoomOffset: -1,
+    accessToken:
+      "pk.eyJ1IjoiYmlsbG85NyIsImEiOiJja3d3Y2V5MGEwMjc5MnZwOGFtdjFxMnV0In0.5Fa8yODvSDsZ1b73O-CwRQ",
+  }
+).addTo(map);
 
-var vm = new Vue({
-  el: '#elenco-viaggi-giornata',
+let geoJsonLayer = L.geoJSON();
+
+var ElencoViaggi = new Vue({
+  el: "#elenco-viaggi-giornata",
   data: {
     /*viaggi: [{
       "id": "1",
@@ -112,10 +119,11 @@ var vm = new Vue({
         }
       ]
     }]*/
-    viaggi:[]
+    viaggi: [],
   },
   methods: {
     mostraTappe(event, id) {
+      event.stopPropagation();
       divViaggi = document.getElementById("elenco-viaggi-giornata");
       divViaggi.style.display = "none";
       divTappe = document.getElementById("elenco-tappe-viaggio");
@@ -123,6 +131,9 @@ var vm = new Vue({
       Titolo = document.querySelector("#elenco-tappe-viaggio-titolo h3");
       console.log(Titolo);
       Titolo.innerHTML = `VIAGGIO ID ${id}`;
+      console.log("mostra tappe()");
+      this.pulisciMappa();
+      ElencoTappe.retrieveData(id);
     },
     aggiungiViaggio() {
       id = this.viaggi.length;
@@ -131,59 +142,69 @@ var vm = new Vue({
     },
     eliminaViaggio(event, id) {
       this.viaggi = this.viaggi.filter(function (value) {
-        console.log(value.id + "  " + id);
         return value.id !== id;
       });
       this.disegnaViaggio();
     },
     disegnaViaggio() {
-      this.viaggi.forEach(function (viaggio) {
-        L.geoJSON(viaggio, {
-          style: function (viaggio) {
-            //console.log(viaggio.properties.selected);
-            switch (viaggio.properties.selected) {
-              case 'no': return { color: "#ff0000" };
-              case 'yes': return { color: "#0000ff" };
-            }
-          }
-        }).addTo(map);
+      geoJsonLayer = L.geoJSON();
+      var myStyle = function (viaggio) {
+        //console.log(viaggio.properties.selected);
+        switch (viaggio.properties.selected) {
+          case "no":
+            return { color: "#1766EB", weight: 3 };
+          case "yes":
+            return { color: "#EB1F00", weight: 5 };
+        }
+      };
+      geoJsonLayer.addData(this.viaggi).addTo(map);
+      geoJsonLayer.eachLayer(function (layer) {
+        layer.setStyle(myStyle(layer.feature));
       });
     },
-    EvidenziaViaggio(event,id){
-      
+    EvidenziaViaggio(event, id) {
+      console.log(event);
       this.viaggi.forEach(function (viaggio) {
-        console.log("value.id"+" -> "+viaggio.id);
-        console.log("id"+" -> "+id);
-        if(viaggio.id === id){
-          viaggio.features[0].properties.selected="yes";
-        }else{
-          viaggio.features[0].properties.selected="no";
+        if (viaggio.id === id) {
+          viaggio.features[0].properties.selected = "yes";
+        } else {
+          viaggio.features[0].properties.selected = "no";
         }
         console.log(viaggio.features[0].properties.selected);
       });
-      
+      this.pulisciMappa();
       this.disegnaViaggio();
     },
-    retrieveData(){
-      let response = fetch('http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi')
-      .then((response)=>response.json())
-      .then((data)=>{
-        this.viaggi=data;
-        this.disegnaViaggio();
-      });
-      console.log(this.viaggi);
-
+    retrieveData() {
+      let response = fetch(
+        "http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi"
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          this.viaggi = data;
+          this.disegnaViaggio();
+        });
+    },
+    pulisciMappa() {
+      console.log(geoJsonLayer);
+      geoJsonLayer.removeFrom(map);
+      geoJsonLayer="";
     }
   },
-    mounted() {
-      this.retrieveData()
-    }
+  mounted() {
+    console.log("ciao sto ricaricando");
+    this.retrieveData();
+  },
 });
 
-var vm = new Vue({
-  el: '#elenco-tappe-viaggio',
+
+
+
+var ElencoTappe = new Vue({
+  el: "#elenco-tappe-viaggio",
   data: {
-    tappe: [{ id: 1, nome: "tappa1" }, { id: 2, nome: "tappa2" }, { id: 3, nome: "tappa3" }, { id: 4, nome: "tappa4" }, { id: 5, nome: "tappa5" }, { id: 6, nome: "tappa6" }]
+    viaggio: [],
+    tappe: [],
   },
   methods: {
     tornaAViaggi() {
@@ -191,9 +212,41 @@ var vm = new Vue({
       divTappe.style.display = "none";
       divViaggi = document.getElementById("elenco-viaggi-giornata");
       divViaggi.style.display = "block";
+    },
+    retrieveData(id) {
+      console.log(
+        `fetch http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi/${id}`
+      );
+      let response = fetch(
+        `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi/${id}`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          this.viaggio = data;
+          this.setTappe();
+          this.disegnaViaggio();
+        });
+    },
+    setTappe(){
+      console.log(this.viaggio);
+      console.log(this.viaggio.features);
+      console.log(this.viaggio.features[0].geometry.coordinates);
+      this.tappe=this.viaggio.features[0].geometry.coordinates;
+      console.log(this.tappe);
+    },
+    disegnaViaggio() {
+      geoJsonLayer = L.geoJSON();
+      var myStyle = { color: "#1766EB", weight: 3 };
+
+      geoJsonLayer.addData(this.viaggio).addTo(map);
+      geoJsonLayer.eachLayer(function (layer) {
+        layer.setStyle(myStyle);
+      });
+    },
+    pulisciMappa() {
+      geoJsonLayer.removeFrom(map);
+      geoJsonLayer="";
     }
-  }
+  },
 });
-
-
 
