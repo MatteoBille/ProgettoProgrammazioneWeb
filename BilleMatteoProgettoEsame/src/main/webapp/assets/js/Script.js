@@ -1,5 +1,21 @@
 var map = L.map("map").setView([45.624029, 13.789859], 13);
-
+var geoJsonTemplate = {
+  "features": [
+      {
+          "geometry": {
+              "coordinates": [
+              ],
+              "type": "LineString"
+          },
+          "type": "Feature",
+          "properties": {
+              "selected": "no"
+          }
+      }
+  ],
+  "nome": "viaggio2",
+  "type": "FeatureCollection"
+};
 L.tileLayer(
   "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
   {
@@ -135,10 +151,30 @@ var ElencoViaggi = new Vue({
       this.pulisciMappa();
       ElencoTappe.retrieveData(id);
     },
-    aggiungiViaggio() {
+    aggiungiViaggio(event) {
+      console.log("aggiunta");
       id = this.viaggi.length;
-      id = this.viaggi[id - 1].id + 1;
-      this.viaggi.push({ id: id, nome: `viaggio${id}` });
+      id = parseInt(this.viaggi[id - 1].id) + 1;
+      let geoJsonNuovoViaggio = geoJsonTemplate;
+      geoJsonNuovoViaggio.id = String(id);
+      geoJsonNuovoViaggio.nome = "viaggio" + id;
+      console.log(geoJsonNuovoViaggio);
+      let response = fetch(
+        "http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(geoJsonNuovoViaggio),
+        }
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          this.viaggi.push(data);
+          this.mostraTappe(event, data.id);
+        });
+        console.log("aggiunta effettuata");
     },
     eliminaViaggio(event, id) {
       this.viaggi = this.viaggi.filter(function (value) {
@@ -157,9 +193,14 @@ var ElencoViaggi = new Vue({
             return { color: "#EB1F00", weight: 5 };
         }
       };
+      console.log("1");
       geoJsonLayer.addData(this.viaggi).addTo(map);
+      
       geoJsonLayer.eachLayer(function (layer) {
-        layer.setStyle(myStyle(layer.feature));
+        console.log(layer);
+        if(layer._latlngs.length!=0){
+          layer.setStyle(myStyle(layer.feature));
+        }
       });
     },
     EvidenziaViaggio(event, id) {
@@ -176,6 +217,7 @@ var ElencoViaggi = new Vue({
       this.disegnaViaggio();
     },
     retrieveData() {
+      console.log;
       let response = fetch(
         "http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi"
       )
@@ -188,17 +230,14 @@ var ElencoViaggi = new Vue({
     pulisciMappa() {
       console.log(geoJsonLayer);
       geoJsonLayer.removeFrom(map);
-      geoJsonLayer="";
-    }
+      geoJsonLayer = "";
+    },
   },
   mounted() {
     console.log("ciao sto ricaricando");
     this.retrieveData();
   },
 });
-
-
-
 
 var ElencoTappe = new Vue({
   el: "#elenco-tappe-viaggio",
@@ -212,11 +251,10 @@ var ElencoTappe = new Vue({
       divTappe.style.display = "none";
       divViaggi = document.getElementById("elenco-viaggi-giornata");
       divViaggi.style.display = "block";
+      this.viaggio = [];
+      this.tappe = [];
     },
     retrieveData(id) {
-      console.log(
-        `fetch http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi/${id}`
-      );
       let response = fetch(
         `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi/${id}`
       )
@@ -227,11 +265,21 @@ var ElencoTappe = new Vue({
           this.disegnaViaggio();
         });
     },
-    setTappe(){
-      console.log(this.viaggio);
-      console.log(this.viaggio.features);
-      console.log(this.viaggio.features[0].geometry.coordinates);
-      this.tappe=this.viaggio.features[0].geometry.coordinates;
+    setTappe() {
+      console.log(this.viaggio.features[0].geometry);
+      for (
+        let i = 0;
+        i < this.viaggio.features[0].geometry.coordinates.length;
+        i++
+      ) {
+        this.tappe.push({
+          idTappa: i,
+          coordinates: [
+            +this.viaggio.features[0].geometry.coordinates[i][0],
+            this.viaggio.features[0].geometry.coordinates[i][1],
+          ],
+        });
+      }
       console.log(this.tappe);
     },
     disegnaViaggio() {
@@ -240,13 +288,23 @@ var ElencoTappe = new Vue({
 
       geoJsonLayer.addData(this.viaggio).addTo(map);
       geoJsonLayer.eachLayer(function (layer) {
-        layer.setStyle(myStyle);
+        if(layer._latlngs.length!=0){
+          layer.setStyle(myStyle(layer.feature));
+        }
       });
     },
     pulisciMappa() {
       geoJsonLayer.removeFrom(map);
-      geoJsonLayer="";
-    }
+      geoJsonLayer = "";
+    },
+  },
+  filters: {
+    formatNumber: function (value) {
+      if (!value) {
+        return "";
+      }
+      console.log(value);
+      return parseFloat(value).toFixed(2);
+    },
   },
 });
-

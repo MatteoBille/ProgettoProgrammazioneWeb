@@ -8,21 +8,20 @@ import java.sql.SQLException;
 
 public class sqliteConnection {
 
+
     public static Connection connect() {
-        try {
-            Class.forName("org.sqlite.JDBC");
-            String dbURL = "jdbc:sqlite:C:\\Users\\Billo\\Desktop\\DbProgrammazioneWeb.db";
-            Connection conn = DriverManager.getConnection(dbURL);
+        Connection c=null;
+            try {
+                Class.forName("org.sqlite.JDBC");
+                String dbURL = "jdbc:sqlite:C:\\Users\\Billo\\Desktop\\DbProgrammazioneWeb.db";
+                c = DriverManager.getConnection(dbURL);
 
-            return conn;
-        } catch (ClassNotFoundException ex) {
-            ex.printStackTrace();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
 
-        return null;
-
+            } catch (ClassNotFoundException ex) {
+                ex.printStackTrace();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        return c;
     }
-
 }

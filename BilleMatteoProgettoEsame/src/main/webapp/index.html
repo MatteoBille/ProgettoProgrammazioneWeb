@@ -74,14 +74,14 @@
                       class="side-bar-travel elenco-viaggi" v-for="viaggio in
                       viaggi" v-on:load="disegnaViaggio" v-on:click="EvidenziaViaggio($event,viaggio.id)">
                       <div class="row row-cols h-100">
-                        <div class="col-8 shadow border" ><p class="">{{viaggio.id}}){{viaggio.nome}}</p></div>
+                        <div class="col-8 shadow border" ><p class="m-0">{{viaggio.nome}}</p></div>
                         <div class="col-4 shadow border">
                           <div class="dropdown">
                             <button class="btn btn-secondary dropdown-toggle
                               operation-button dropdown-button" type="button"
                               v-bind:id="'button-' + viaggio.id"
                               data-bs-toggle="dropdown" aria-expanded="false">
-                              Operazioni
+                              Opzioni
                             </button>
                             <ul class="dropdown-menu"
                               aria-labelledby="dropdownMenuButton1">
@@ -104,7 +104,7 @@
                   </div>
                   <div class="row align-items-start justify-content-center
                     border side-bar-footer">
-                    <div class="col shadow h-100" v-on:click="aggiungiViaggio"><h3>Aggiungi
+                    <div class="col shadow h-100" v-on:click="aggiungiViaggio($event)"><h3>Aggiungi
                         Viaggio</h3></div>
                   </div>
                 </div>
@@ -125,16 +125,20 @@
 
 
                     <div v-bind:id="'tappa-' + tappa.id" class="side-bar-travel
-                      elenco-viaggi" v-for="tappa in tappe">
+                      elenco-viaggi h-100" v-for="tappa in tappe">
                       <div class="row row-cols h-100">
-                        <div class="col-8 shadow border"><p class="">lat:{{tappa[0]}},lnt:{{tappa[1]}}</p></div>
-                        <div class="col-4 shadow border">
+                        <div class="col-1 shadow border h-100 d-flex align-items-center justify-content-center"><p class="m-0">{{tappa.idTappa}}</p></div>
+                        <div class="col-7 row shadow border h-100 gx-0">
+                          <div class="col h-100 w-50 d-flex align-items-center justify-content-center"><p class="m-0">lat:{{tappa.coordinates[0]|formatNumber}}</p></div>
+                          <div class="col h-100 w-50 d-flex align-items-center justify-content-center"><p class="m-0">lnt:{{tappa.coordinates[0]|formatNumber}}</p></div>
+                        </div>
+                        <div class="col-4 shadow border h-100 d-flex align-items-center justify-content-center">
                           <div class="dropdown">
                             <button class="btn btn-secondary dropdown-toggle
                               operation-button dropdown-button" type="button"
                               v-bind:id="'button-' + tappa.id"
                               data-bs-toggle="dropdown" aria-expanded="false">
-                              Operazioni
+                              Opzioni
                             </button>
                             <ul class="dropdown-menu"
                               aria-labelledby="dropdownMenuButton1">
