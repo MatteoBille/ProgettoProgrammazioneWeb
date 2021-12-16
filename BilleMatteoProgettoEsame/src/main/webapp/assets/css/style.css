@@ -23,7 +23,7 @@ div.col>a>img{
 }
 
 .side-bar-travel{
-    max-height: 10%;
+    max-height: 40%;
     background-color: #B76D68;
 }
 /*
@@ -78,9 +78,21 @@ footer{
 
 #elenco-viaggi-giornata{
     display:block;
+    height:auto;
 }
 #map{
     height: 90%;
     width: 90%;
 }
 
+.container-modifica-tappa{
+    height:100%;
+    display:none;
+}
+.container-tappa{
+    height:50%;
+}
+
+.elenco-viaggi{
+    height:auto;
+}
