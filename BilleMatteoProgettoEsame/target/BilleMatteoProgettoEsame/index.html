@@ -61,14 +61,14 @@
             <div id="elenco-viaggi-giornata" class="col h-100 p-3 right-side">
               <div class="h-100 row align-items-center justify-content-center">
                 <div class="col-4 align-self-center w-75 h-100">
-                  <div class="row align-items-start justify-content-center
-                    border side-bar-title text-white">
-                    <div class="col shadow h-100"><h3>Title</h3></div>
+                  <div id="elenco-tappe-viaggio-titolo" class="row align-items-start justify-content-center border side-bar-title text-white">
+                    <div class="col-2 shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><button class="btn btn-primary h-100 w-100" v-on:click="tornaAViaggi()">
+                      -1 giorno</button></div>
+                    <div class="col-8 shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><h3>ViaggiGiorno</h3></div>
+                    <div class="col-2 shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><button class="btn btn-primary h-100 w-100" v-on:click="salvaViaggio()">+1 giorno</button></div>
                   </div>
                   <div class="row row-cols-1 justify-content-center
                     overflow-auto side-bar-content">
-
-
 
                     <div v-bind:id="'viaggio-' + viaggio.id"
                       class="side-bar-travel elenco-viaggi" v-for="viaggio in
@@ -100,11 +100,10 @@
                       </div>
                     </div>
 
-
                   </div>
                   <div class="row align-items-start justify-content-center
                     border side-bar-footer">
-                    <div class="col shadow h-100" v-on:click="aggiungiViaggio($event)"><h3>Aggiungi
+                    <div class="col shadow h-100" v-on:click="aggiungiViaggio($event)"><h3 class="m-0">Aggiungi
                         Viaggio</h3></div>
                   </div>
                 </div>
@@ -114,38 +113,70 @@
             <div id="elenco-tappe-viaggio" class="col h-100 p-3 right-side">
               <div class="h-100 row align-items-center justify-content-center">
                 <div class="col-4 align-self-center w-75 h-100">
-                  <div id="elenco-tappe-viaggio-titolo" class="row
-                    align-items-start justify-content-center
-                    border side-bar-title text-white">
-                    <div class="col shadow h-100"><h3>TAPPE VIAGGIO</h3></div>
+                  <div id="elenco-tappe-viaggio-titolo" class="row align-items-start justify-content-center border side-bar-title text-white">
+                    <div class="col-2 shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><button class="btn btn-primary h-100 w-100" v-on:click="tornaAViaggi()">Torna
+                      al menu dei viaggi</button></div>
+                    <div class="col-8 shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><h3></h3></div>
+                    <div class="col-2 shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><button class="btn btn-primary h-100 w-100" v-on:click="salvaViaggio()">Salva e torna indietro</button></div>
                   </div>
-                  <div class="row row-cols-1 justify-content-center
-                    overflow-auto side-bar-content">
+                  <div class="row row-cols-1 justify-content-center overflow-auto side-bar-content">
 
 
 
-                    <div v-bind:id="'tappa-' + tappa.id" class="side-bar-travel
-                      elenco-viaggi h-100" v-for="tappa in tappe">
-                      <div class="row row-cols h-100">
-                        <div class="col-1 shadow border h-100 d-flex align-items-center justify-content-center"><p class="m-0">{{tappa.idTappa}}</p></div>
-                        <div class="col-7 row shadow border h-100 gx-0">
-                          <div class="col h-100 w-50 d-flex align-items-center justify-content-center"><p class="m-0">lat:{{tappa.coordinates[0]|formatNumber}}</p></div>
+                    <div v-bind:id="'tappa-' + tappa.idTappa" class="side-bar-travel
+                      elenco-viaggi" v-for="tappa in tappe">
+
+                      <div v-bind:id="'container-tappa-' + tappa.idTappa" class="row row-cols h-100 container-tappa">
+                        <div class="col-1 shadow border d-flex align-items-center justify-content-center "><p class="m-0">{{tappa.idTappa}}</p></div>
+                        <div class="col-7 row shadow border gx-0 ">
+                          <div class="col h-100 w-50 d-flex align-items-center justify-content-center"><p class="m-0">lat:{{tappa.coordinates[1]|formatNumber}}</p></div>
                           <div class="col h-100 w-50 d-flex align-items-center justify-content-center"><p class="m-0">lnt:{{tappa.coordinates[0]|formatNumber}}</p></div>
                         </div>
                         <div class="col-4 shadow border h-100 d-flex align-items-center justify-content-center">
                           <div class="dropdown">
                             <button class="btn btn-secondary dropdown-toggle
                               operation-button dropdown-button" type="button"
-                              v-bind:id="'button-' + tappa.id"
+                              v-bind:id="'button-' + tappa.idTappa"
                               data-bs-toggle="dropdown" aria-expanded="false">
                               Opzioni
                             </button>
                             <ul class="dropdown-menu"
                               aria-labelledby="dropdownMenuButton1">
-                              <li><a class="dropdown-item" href="#">Modifica</a></li>
-                              <li><a class="dropdown-item" href="#">Cancella</a></li>
+                              <li><a class="dropdown-item" v-on:click="modificaPunto($event,tappa.idTappa)" href="#">Modifica</a></li>
+                              <li><a class="dropdown-item" v-on:click="cancellaPunto($event,tappa.idTappa)" href="#">Cancella</a></li>
                               <li><a class="dropdown-item" href="#">Visualizza</a></li>
                             </ul>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div v-bind:id="'container-modifica-tappa-' + tappa.idTappa" class="row row-cols h-100 container-modifica-tappa">
+                        <div class="col-1 shadow border d-flex align-items-center justify-content-center "><p class="m-0">{{tappa.idTappa}}</p></div>
+                        <div class="col-lg-11 row row-cols-1 shadow border h-100 gx-0  ">
+                          <div class="col h-25 w-100 d-flex align-items-center justify-content-center">
+                            <div class="input-group-prepend">
+                              <span class="input-group-text" id="basic-addon1">Latitudine:</span>
+                            </div>
+                            <input v-bind:id="'lat-tappa-' + tappa.idTappa" type="text" class="form-control" placeholder="Lat" aria-label="12.12345" aria-describedby="basic-addon1">
+                          </div>
+                          <div class="col h-25 w-100 d-flex align-items-center justify-content-center ">
+                            <div class="input-group-prepend">
+                              <span class="input-group-text" id="basic-addon2">Longitudine:</span>
+                            </div>
+                            <input v-bind:id="'lng-tappa-' + tappa.idTappa"  type="text" class="form-control" placeholder="Lng" aria-label="12.12345" aria-describedby="basic-addon2">
+                          </div>
+                          <div class="col h-25 w-100 d-flex align-items-center justify-content-center ">
+                            <div class="input-group-prepend">
+                              <div class="input-group-text">
+                                <input v-bind:id="'check-tappa-' + tappa.idTappa" type="checkbox" aria-label="Segna punto come importante">
+                              </div>
+                            </div>
+                            <input v-bind:id="'check-text-tappa-' + tappa.idTappa" type="text" class="form-control" placeholder="Note per il punto" aria-label="Text input with checkbox"></div>
+                          <div class="col h-25 w-50 d-flex align-items-center justify-content-center ">
+                            <input type="button" class="btn btn-primary" value="Indietro" v-on:click="IndietroSenzaSalvare($event,tappa.idTappa)">
+                          </div>
+                          <div class="col h-25 w-50 d-flex align-items-center justify-content-center ">
+                            <input type="button" class="btn btn-primary" value="Salva" v-on:click="SalvaModificaPunto($event,tappa.idTappa)">
                           </div>
                         </div>
                       </div>
@@ -155,8 +186,7 @@
                   </div>
                   <div class="row align-items-start justify-content-center
                     border side-bar-footer">
-                    <div class="col shadow h-100"><a v-on:click="tornaAViaggi"><h3>Torna
-                          al menu dei viaggi</h3></a></div>
+                    <div class="col shadow h-100"><a v-on:click="aggiungiTappaAllaFine"><h3>Aggiungi tappa alla fine</h3></a></div>
                   </div>
                 </div>
               </div>
