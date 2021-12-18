@@ -66,7 +66,7 @@
                     <div class="col-2 shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><button class="btn btn-primary h-100 w-100" v-on:click="tornaAViaggi()">
                       -1 giorno</button></div>
                     <div id="calendar" class="col-8 shadow h-100 d-flex align-items-center justify-content-center m-0 p-0">
-                      <input id="data-viaggi" type="text" class="form-control" placeholder="Data gg/mm/aaaa" aria-label="12.12345" aria-describedby="basic-addon1" v-on:focusout="setNewData()" v-on:submit="setNewData()">
+                      <input id="data-viaggi" type="text" class="form-control" :value="date" v-on:input="date = $event.target.value" aria-label="12.12345" aria-describedby="basic-addon1" v-on:focusout="setNewDate(date)" v-on:submit="setNewDate(date)">
                     </div>
                     <div class="col-2 shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><button class="btn btn-primary h-100 w-100" v-on:click="salvaViaggio()">+1 giorno</button></div>
                   </div>

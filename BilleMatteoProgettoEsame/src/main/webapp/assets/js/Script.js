@@ -143,7 +143,8 @@ var ElencoViaggi = new Vue({
       ]
     }]*/
     viaggi: [],
-    nextId:0
+    nextId:0,
+    date:""
   },
   methods: {
     mostraTappe: function (event, id) {
@@ -159,13 +160,11 @@ var ElencoViaggi = new Vue({
       ElencoTappe.retrieveData(id);
     },
     aggiungiViaggio: function (event) {
-      console.log(this.nextId);
       id=this.nextId;
       let geoJsonNuovoViaggio = geoJsonTemplate;
       geoJsonNuovoViaggio.id = String(id);
       geoJsonNuovoViaggio.nome = "viaggio" + id;
-      data=document.getElementById("data-viaggi").value;
-      data=this.reverseData(data);
+      date=this.reverseData(this.date);
       let response = fetch(
         `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi?data=${data}`,
         {
@@ -183,8 +182,6 @@ var ElencoViaggi = new Vue({
         });
     },
     eliminaViaggio: function (event, id) {
-      console.log("id viaggio:" + id);
-
       let response = fetch(
         "http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi",
         {
@@ -200,7 +197,6 @@ var ElencoViaggi = new Vue({
       });
     },
     disegnaViaggio: function () {
-      console.log(this.viaggi);
       geoJsonLayer = L.geoJSON();
       var myStyle = function (viaggio) {
         switch (viaggio.properties.selected) {
@@ -230,8 +226,7 @@ var ElencoViaggi = new Vue({
       this.disegnaViaggio();
     },
     retrieveData: function () {
-      let data=document.getElementById("data-viaggi").value;
-      data=this.reverseData(data);
+      let data=this.reverseData(this.date);
       let response = fetch(
         `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi?data=${data}`
       )
@@ -247,7 +242,6 @@ var ElencoViaggi = new Vue({
       geoJsonLayer = "";
     },
     setThisDay(){
-      let dataInput = document.getElementById("data-viaggi");
       /*https://www.codegrepper.com/code-examples/javascript/today+date+javascript+yyyy-mm-dd*/
       var today = new Date();
       var dd = String(today.getDate()).padStart(2, '0');
@@ -256,19 +250,20 @@ var ElencoViaggi = new Vue({
 
       today = dd + '/' + mm + '/' + yyyy;
       /*********************/
-      dataInput.value=today;
+      
+      this.date=today;
     },
-    reverseData:function(data){
-      let dataPieces=data.split('/');
-      let dd=dataPieces[0];
+    reverseData:function(date){
+      let datePieces=date.split('/');
+      let dd=datePieces[0];
      
-      let mm=dataPieces[1];
+      let mm=datePieces[1];
 
-      let yyyy=dataPieces[2];
+      let yyyy=datePieces[2];
 
       return yyyy+"/"+mm+"/"+dd;
     },
-    setNewData:function(){
+    setNewDate:function(newDate){
       this.pulisciMappa();
       this.retrieveData();
     }
@@ -322,8 +317,6 @@ var ElencoTappe = new Vue({
           ],
         });
       }
-      console.log("tappe inizio");
-      console.log(this.tappe);
     },
     salvaViaggio: function () {
       let id = parseInt(this.viaggio.id);
@@ -353,8 +346,6 @@ var ElencoTappe = new Vue({
       for (let i = 0; i < this.tappe.length; ++i) {
         this.tappe[i].idTappa = i;
       }
-      console.log("tappe");
-      console.log(this.tappe);
       this.aggiornaTutteLeCoordinateViaggio();
       this.pulisciMappa();
       this.disegnaViaggio();
@@ -421,12 +412,10 @@ var ElencoTappe = new Vue({
         let coords = [0,0];
         let newTappa = { "idTappa": idTappa, "coordinates": coords };
         this.tappe.push(newTappa);
-        console.log("aggiunta con button");
         this.$nextTick(() => {
           this.modificaPunto(null, idTappa);
         });
       } else {
-        console.log("aggiunta con tasto");
         let coords = [lat, lng];
         
         let newTappa = { "idTappa": idTappa, "coordinates": coords };
@@ -443,20 +432,17 @@ var ElencoTappe = new Vue({
       this.disegnaViaggio();
     },
     inserisciDatiConClik: function (latlng) {
-      console.log(latlng);
       let elements = document.getElementsByClassName(
         "container-modifica-tappa"
       );
       let selectedElem;
       if (elements.length !== 0) {
-        console.log(elements);
         for(let i=0;i<elements.length;++i){
           if(elements[i].style.display === "flex"){
             selectedElem=elements[i];
             break;
           }
         }
-        console.log(selectedElem);
       }else{
         selectedElem=null;
       }
