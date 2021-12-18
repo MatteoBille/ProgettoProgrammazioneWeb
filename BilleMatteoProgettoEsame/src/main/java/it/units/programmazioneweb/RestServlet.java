@@ -17,37 +17,55 @@ public class RestServlet {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getTravels() throws SQLException {
+    public Response getTravels( @QueryParam("data") String data) throws SQLException {
         Connection conn = sqliteConnection.connect();
-        //StringBuilder response = new StringBuilder();
-        JSONArray response = new JSONArray();
+        //StringBuilder geoJsonResponse = new StringBuilder();
+        JSONArray geoJsonResponse = new JSONArray();
+        JSONObject response= new JSONObject();
 
-
+        String query1 = "SELECT * FROM Viaggi WHERE dataViaggio = \""+data+"\";";
         try (Statement stmt = conn.createStatement()) {
-            String query = "SELECT * FROM Viaggi;";
-            ResultSet rs = stmt.executeQuery(query);
+
+            ResultSet rs = stmt.executeQuery(query1);
             while (rs.next()) {
                 JSONObject jsonObject = new JSONObject(rs.getString("GeoJsonData"));
                 jsonObject.put("id",Integer.toString(rs.getInt("idViaggio")));
-                response.put(jsonObject);
+                geoJsonResponse.put(jsonObject);
             }
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
         conn.close();
-        return Response.ok(response.toString()).build();
+        response.put("geoJson",geoJsonResponse);
+
+        conn = sqliteConnection.connect();
+
+        String query2 = "SELECT MAX(idViaggio) as idViaggio FROM Viaggi;";
+        try (Statement stmt = conn.createStatement()) {
+
+            ResultSet rs = stmt.executeQuery(query2);
+            while (rs.next()) {
+                response.put("id",rs.getInt("idViaggio"));
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        conn.close();
+
+        return Response.ok(response.toString().replaceAll("\\\\","")).build();
     }
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addTravel(String requestBody) throws SQLException {
+    public Response addTravel(@QueryParam("data") String data,String requestBody) throws SQLException {
         Connection conn = sqliteConnection.connect();
         //StringBuilder response = new StringBuilder();
 
         JSONObject jsonRequest=new JSONObject(requestBody);
         String id = jsonRequest.getString("id");
         JSONObject jsonResponse=new JSONObject();
-        String queryInsert = "INSERT INTO Viaggi VALUES("+id+",1,'"+requestBody+"');";
+        String queryInsert = "INSERT INTO Viaggi VALUES("+id+",1,'"+requestBody+"','"+data+"');";
         try (Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(queryInsert);
         } catch (SQLException throwables) {

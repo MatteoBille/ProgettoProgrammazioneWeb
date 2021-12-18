@@ -1,3 +1,11 @@
+
+      /*
+   Return function which will be called when `hide()` method is triggered,
+   it must necessarily call the `done()` function
+    to complete hiding process 
+  */
+
+
 var map = L.map("map").setView([45.624029, 13.789859], 13);
 var geoJsonTemplate = {
   features: [
@@ -135,6 +143,7 @@ var ElencoViaggi = new Vue({
       ]
     }]*/
     viaggi: [],
+    nextId:0
   },
   methods: {
     mostraTappe: function (event, id) {
@@ -150,15 +159,15 @@ var ElencoViaggi = new Vue({
       ElencoTappe.retrieveData(id);
     },
     aggiungiViaggio: function (event) {
-      id = this.viaggi.length;
-      if (id !== 0) {
-        id = parseInt(this.viaggi[id - 1].id) + 1;
-      }
+      console.log(this.nextId);
+      id=this.nextId;
       let geoJsonNuovoViaggio = geoJsonTemplate;
       geoJsonNuovoViaggio.id = String(id);
       geoJsonNuovoViaggio.nome = "viaggio" + id;
+      data=document.getElementById("data-viaggi").value;
+      data=this.reverseData(data);
       let response = fetch(
-        "http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi",
+        `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi?data=${data}`,
         {
           method: "POST",
           headers: {
@@ -169,7 +178,7 @@ var ElencoViaggi = new Vue({
       )
         .then((response) => response.json())
         .then((data) => {
-          this.viaggi.push(data);
+          this.viaggi.push(data.geoJson);
           this.mostraTappe(event, data.id);
         });
     },
@@ -191,6 +200,7 @@ var ElencoViaggi = new Vue({
       });
     },
     disegnaViaggio: function () {
+      console.log(this.viaggi);
       geoJsonLayer = L.geoJSON();
       var myStyle = function (viaggio) {
         switch (viaggio.properties.selected) {
@@ -220,14 +230,15 @@ var ElencoViaggi = new Vue({
       this.disegnaViaggio();
     },
     retrieveData: function () {
+      let data=document.getElementById("data-viaggi").value;
+      data=this.reverseData(data);
       let response = fetch(
-        "http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi"
+        `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi?data=${data}`
       )
         .then((response) => response.json())
         .then((data) => {
-          this.viaggi = data;
-          console.log("viaggi");
-          console.log(this.viaggi);
+          this.viaggi=data.geoJson;
+          this.nextId=data.id+1;
           this.disegnaViaggio();
         });
     },
@@ -235,8 +246,35 @@ var ElencoViaggi = new Vue({
       geoJsonLayer.removeFrom(map);
       geoJsonLayer = "";
     },
+    setThisDay(){
+      let dataInput = document.getElementById("data-viaggi");
+      /*https://www.codegrepper.com/code-examples/javascript/today+date+javascript+yyyy-mm-dd*/
+      var today = new Date();
+      var dd = String(today.getDate()).padStart(2, '0');
+      var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+      var yyyy = today.getFullYear();
+
+      today = dd + '/' + mm + '/' + yyyy;
+      /*********************/
+      dataInput.value=today;
+    },
+    reverseData:function(data){
+      let dataPieces=data.split('/');
+      let dd=dataPieces[0];
+     
+      let mm=dataPieces[1];
+
+      let yyyy=dataPieces[2];
+
+      return yyyy+"/"+mm+"/"+dd;
+    },
+    setNewData:function(){
+      this.pulisciMappa();
+      this.retrieveData();
+    }
   },
   mounted: function () {
+    this.setThisDay();
     this.retrieveData();
   },
 });
@@ -320,19 +358,6 @@ var ElencoTappe = new Vue({
       this.aggiornaTutteLeCoordinateViaggio();
       this.pulisciMappa();
       this.disegnaViaggio();
-    },
-    IndietroSenzaSalvare: function (event, id) {
-      let container = document.querySelector(`#container-tappa-${id}`);
-      container.remove();
-      let modifierContainer = document.querySelector(
-        `#container-modifica-tappa-${id}`
-      );
-      modifierContainer.container.remove();
-
-      let numberOfPoints = document.querySelectorAll(".container-tappa").length;
-      if(numberOfPoints>1){
-      this.pulisciMappa();
-      }
     },
     disegnaViaggio: function () {
       geoJsonLayer = L.geoJSON();
