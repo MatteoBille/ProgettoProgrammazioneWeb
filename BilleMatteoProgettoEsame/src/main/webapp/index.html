@@ -4,6 +4,7 @@
     <title>Bootstrap Example</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+ 
     <!--Bootstrap import-->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
@@ -61,10 +62,12 @@
             <div id="elenco-viaggi-giornata" class="col h-100 p-3 right-side">
               <div class="h-100 row align-items-center justify-content-center">
                 <div class="col-4 align-self-center w-75 h-100">
-                  <div id="elenco-tappe-viaggio-titolo" class="row align-items-start justify-content-center border side-bar-title text-white">
+                  <div id="elenco-viaggio-viaggio-titolo" class="row align-items-start justify-content-center border side-bar-title text-white">
                     <div class="col-2 shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><button class="btn btn-primary h-100 w-100" v-on:click="tornaAViaggi()">
                       -1 giorno</button></div>
-                    <div class="col-8 shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><h3>ViaggiGiorno</h3></div>
+                    <div id="calendar" class="col-8 shadow h-100 d-flex align-items-center justify-content-center m-0 p-0">
+                      <input id="data-viaggi" type="text" class="form-control" placeholder="Data gg/mm/aaaa" aria-label="12.12345" aria-describedby="basic-addon1" v-on:focusout="setNewData()" v-on:submit="setNewData()">
+                    </div>
                     <div class="col-2 shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><button class="btn btn-primary h-100 w-100" v-on:click="salvaViaggio()">+1 giorno</button></div>
                   </div>
                   <div class="row row-cols-1 justify-content-center
@@ -115,9 +118,9 @@
                 <div class="col-4 align-self-center w-75 h-100">
                   <div id="elenco-tappe-viaggio-titolo" class="row align-items-start justify-content-center border side-bar-title text-white">
                     <div class="col-2 shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><button class="btn btn-primary h-100 w-100" v-on:click="tornaAViaggi()">Torna
-                      al menu dei viaggi</button></div>
+                      indietro</button></div>
                     <div class="col-8 shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><h3></h3></div>
-                    <div class="col-2 shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><button class="btn btn-primary h-100 w-100" v-on:click="salvaViaggio()">Salva e torna indietro</button></div>
+                    <div class="col-2 shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><button class="btn btn-primary h-100 w-100" v-on:click="salvaViaggio()">Salva</button></div>
                   </div>
                   <div class="row row-cols-1 justify-content-center overflow-auto side-bar-content">
 
@@ -132,7 +135,7 @@
                           <div class="col h-100 w-50 d-flex align-items-center justify-content-center"><p class="m-0">lat:{{tappa.coordinates[1]|formatNumber}}</p></div>
                           <div class="col h-100 w-50 d-flex align-items-center justify-content-center"><p class="m-0">lnt:{{tappa.coordinates[0]|formatNumber}}</p></div>
                         </div>
-                        <div class="col-4 shadow border h-100 d-flex align-items-center justify-content-center">
+                        <div class="col-4 shadow border d-flex align-items-center justify-content-center">
                           <div class="dropdown">
                             <button class="btn btn-secondary dropdown-toggle
                               operation-button dropdown-button" type="button"
@@ -173,7 +176,7 @@
                             </div>
                             <input v-bind:id="'check-text-tappa-' + tappa.idTappa" type="text" class="form-control" placeholder="Note per il punto" aria-label="Text input with checkbox"></div>
                           <div class="col h-25 w-50 d-flex align-items-center justify-content-center ">
-                            <input type="button" class="btn btn-primary" value="Indietro" v-on:click="IndietroSenzaSalvare($event,tappa.idTappa)">
+                            <input type="button" class="btn btn-primary" value="Indietro" v-on:click="cancellaPunto($event,tappa.idTappa)">
                           </div>
                           <div class="col h-25 w-50 d-flex align-items-center justify-content-center ">
                             <input type="button" class="btn btn-primary" value="Salva" v-on:click="SalvaModificaPunto($event,tappa.idTappa)">

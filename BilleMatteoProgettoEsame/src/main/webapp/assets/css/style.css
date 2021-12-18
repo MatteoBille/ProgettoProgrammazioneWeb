@@ -96,3 +96,15 @@ footer{
 .elenco-viaggi{
     height:auto;
 }
+
+p , button{
+    font-size: 1vw;
+}
+
+h3{
+    font-size: 2vw;
+}
+
+#elenco-viaggio-viaggio-titolo{
+    white-space: normal;
+}
