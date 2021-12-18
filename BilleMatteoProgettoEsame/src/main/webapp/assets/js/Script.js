@@ -166,7 +166,7 @@ var ElencoViaggi = new Vue({
       geoJsonNuovoViaggio.nome = "viaggio" + id;
       date=this.reverseData(this.date);
       let response = fetch(
-        `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi?data=${data}`,
+        `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi?data=${date}`,
         {
           method: "POST",
           headers: {
@@ -226,9 +226,9 @@ var ElencoViaggi = new Vue({
       this.disegnaViaggio();
     },
     retrieveData: function () {
-      let data=this.reverseData(this.date);
+      let date=this.reverseData(this.date);
       let response = fetch(
-        `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi?data=${data}`
+        `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi?data=${date}`
       )
         .then((response) => response.json())
         .then((data) => {
