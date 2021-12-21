@@ -41,106 +41,6 @@ let geoJsonLayer = L.geoJSON();
 let ElencoViaggi = new Vue({
   el: "#elenco-viaggi-giornata",
   data: {
-    /*viaggi: [{
-      "id": "1",
-      "nome": "viaggio1",
-      "type": "FeatureCollection",
-      "features": [
-        {
-          "type": "Feature",
-          "properties": { "selected": "no" },
-          "geometry": {
-            "type": "LineString",
-            "coordinates": [
-              [
-                13.78509521484375,
-                45.64092778836502
-              ],
-              [
-                13.7933349609375,
-                45.79050946752472
-              ],
-              [
-                13.596954345703125,
-                45.79816953017265
-              ],
-              [
-                13.981475830078125,
-                45.868018964152476
-              ],
-              [
-                14.02130126953125,
-                45.70234306798271
-              ],
-              [
-                13.868865966796875,
-                45.79529713006591
-              ],
-              [
-                13.904571533203125,
-                45.57175504130605
-              ],
-              [
-                13.96636962890625,
-                45.612116176517304
-              ]
-            ]
-          }
-        }
-      ]
-    }, {
-      "id": "2",
-      "nome": "viaggio2",
-      "type": "FeatureCollection",
-      "features": [
-        {
-
-          "type": "Feature",
-          "properties": { "selected": "no" },
-          "geometry": {
-            "type": "LineString",
-            "coordinates": [
-              [
-                13.591461181640623,
-                45.82879925192134
-              ],
-              [
-                13.860626220703125,
-                45.95496879511337
-              ],
-              [
-                14.1558837890625,
-                45.87853662114514
-              ],
-              [
-                14.308319091796875,
-                45.71001523943372
-              ],
-              [
-                14.394836425781248,
-                45.81922927350269
-              ],
-              [
-                14.150390625,
-                45.9874205909687
-              ],
-              [
-                13.98284912109375,
-                45.73206686696598
-              ],
-              [
-                14.32342529296875,
-                45.508271755944975
-              ],
-              [
-                14.478607177734373,
-                45.706179285330855
-              ]
-            ]
-          }
-        }
-      ]
-    }]*/
     viaggi: [],
     nextId: 0,
     date: "",
@@ -152,8 +52,6 @@ let ElencoViaggi = new Vue({
       divViaggi.style.display = "none";
       divTappe = document.getElementById("elenco-tappe-viaggio");
       divTappe.style.display = "block";
-      Titolo = document.querySelector("#elenco-tappe-viaggio-titolo h3");
-      Titolo.innerHTML = `VIAGGIO ID ${id}`;
       this.pulisciMappa();
       ElencoTappe.setMapListener();
       ElencoTappe.retrieveData(id);
@@ -162,7 +60,7 @@ let ElencoViaggi = new Vue({
       id = this.nextId;
       let geoJsonNuovoViaggio = geoJsonTemplate;
       geoJsonNuovoViaggio.id = String(id);
-      geoJsonNuovoViaggio.nome = "viaggio" + id;
+      geoJsonNuovoViaggio.nome = "viaggio";
       date = this.reverseData(this.date);
 
       let header = {
@@ -285,10 +183,23 @@ let ElencoViaggi = new Vue({
       }
       return header;
     },
+    changeDay:function(nday){
+
+      let datePieces = this.date.split("/");
+      let dd = datePieces[0];
+
+      let mm = datePieces[1];
+
+      let yyyy = datePieces[2];
+
+      this.date = (parseInt(dd)+parseInt(nday)) + "/" + mm + "/" + yyyy;
+      this.pulisciMappa();
+      this.retrieveData();
+    }
   },
   mounted: function () {
     this.setThisDay();
-    //this.retrieveData();
+    this.retrieveData();
   },
 });
 
@@ -297,6 +208,7 @@ let ElencoTappe = new Vue({
   data: {
     viaggio: [],
     tappe: [],
+    nomeViaggio:""
   },
   methods: {
     tornaAViaggi: function () {
@@ -324,6 +236,7 @@ let ElencoTappe = new Vue({
         .then((data) => {
           if (data.message !== "NotAccepted") {
             this.viaggio = data;
+            this.nomeViaggio= data.nome;
             this.setTappe();
             this.disegnaViaggio();
           }
@@ -498,6 +411,32 @@ let ElencoTappe = new Vue({
       }
       return header;
     },
+    modificaNomeViaggio:function(){
+      console.log("sto cambinando visualizzazione");
+      document.querySelector("#nome-viaggio").style.display="none";
+      document.querySelector("#modifica-nome").style.display="none";
+      document.querySelector("#cambia-nome").style.display="flex";
+      document.querySelector("#salva-nome").style.display="flex";
+    },
+    salvaNomeViaggio:function(){
+      document.querySelector("#nome-viaggio").style.display="flex";
+      document.querySelector("#modifica-nome").style.display="flex";
+      document.querySelector("#cambia-nome").style.display="none";
+      document.querySelector("#salva-nome").style.display="none";
+      
+      this.nomeViaggio= document.querySelector("#nuovo-nome-viaggio").value;
+      this.viaggio.nome=this.nomeViaggio;
+      console.log(this.nomeViaggio);
+    },
+    nascondiModificaNome:function(){
+      document.querySelector("#cambia-nome").style.display="none";
+      document.querySelector("#salva-nome").style.display="none";
+      document.querySelector("#nome-viaggio").style.display="flex";
+      document.querySelector("#modifica-nome").style.display="flex";
+    }
+  },
+  mounted:function(){
+    this.nascondiModificaNome();
   },
   filters: {
     formatNumber: function (value) {
@@ -507,6 +446,7 @@ let ElencoTappe = new Vue({
       return parseFloat(value).toFixed(2);
     },
   },
+  
 });
 
 let SignUpLoginButtons = new Vue({
@@ -590,7 +530,7 @@ let loginWindows = new Vue({
       divViaggi.style.display = "block";
       divTappe = document.querySelector("#login");
       divTappe.style.display = "none";
-    },
+    }
   },
 });
 
