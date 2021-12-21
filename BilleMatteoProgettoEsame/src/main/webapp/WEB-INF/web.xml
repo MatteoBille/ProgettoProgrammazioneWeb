@@ -6,20 +6,51 @@
 <web-app>
   <display-name>Archetype Created Web Application</display-name>
   <servlet>
-    <servlet-name>Jersey REST Service</servlet-name>
+    <servlet-name>Jersey REST Service Viaggi</servlet-name>
     <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
     <init-param>
       <param-name>jersey.config.server.provider.packages</param-name>
-      <param-value>it.units.programmazioneweb</param-value>
+      <param-value>it.units.travelshandler</param-value>
     </init-param>
     <init-param>
-        <param-name>javax.ws.rs.Application</param-name>
-        <param-value>it.units.programmazioneweb.RestApplicationConfig</param-value>
+      <param-name>javax.ws.rs.Application</param-name>
+       <param-value>it.units.travelshandler.RestApplicationConfig</param-value>
     </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
+
+  <servlet>
+    <servlet-name>Jersey REST Service SignUp</servlet-name>
+    <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+    <init-param>
+      <param-name>jersey.config.server.provider.packages</param-name>
+      <param-value>it.units.signup</param-value>
+    </init-param>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+
+  <servlet>
+    <servlet-name>Jersey REST Service login</servlet-name>
+    <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+    <init-param>
+      <param-name>jersey.config.server.provider.packages</param-name>
+      <param-value>it.units.signup</param-value>
+    </init-param>
+    <load-on-startup>3</load-on-startup>
+  </servlet>
+
   <servlet-mapping>
-    <servlet-name>Jersey REST Service</servlet-name>
-    <url-pattern>/api/*</url-pattern>
+    <servlet-name>Jersey REST Service Viaggi</servlet-name>
+    <url-pattern>/apiViaggi/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>Jersey REST Service SignUp</servlet-name>
+    <url-pattern>/apiSignUp/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>Jersey REST Service login</servlet-name>
+    <url-pattern>/apiLogin/*</url-pattern>
   </servlet-mapping>
 </web-app>

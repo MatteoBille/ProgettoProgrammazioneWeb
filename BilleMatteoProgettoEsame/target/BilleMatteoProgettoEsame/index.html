@@ -45,7 +45,7 @@
         <div class="navbar-nav">
           <div id="signUpLogin" class="text-end">
             <button type="button" class="btn btn-outline-light me-2" v-on:click="showLoginForm()">Login</button>
-            <button type="button" class="btn btn-warning">Sign-up</button>
+            <button type="button" class="btn btn-warning" v-on:click="showSignUpForm()">Sign-up</button>
           </div>
         </div>
       </header>
@@ -67,12 +67,21 @@
                   <div class="row align-items-start justify-content-center border side-bar-title text-white">
                     <h3>Login</h3>
                   </div>
-                  <div id="loginForm" class="row row-cols-1 justify-content-center
+                  <div id="loginform" class="row row-cols-1 justify-content-center
                     overflow-auto side-bar-content">
                     <div class="row">
                         <input id="name" type="text" class="form-control" aria-label="12.12345" aria-describedby="basic-addon1" placeholder="nome">
                         <input id="password" type="text" class="form-control" aria-label="12.12345" aria-describedby="basic-addon1" placeholder="password">
-                        <input id="sendLogin" type="button" class="submit" aria-label="12.12345" value="login" aria-describedby="basic-addon1" v-on:click="sendLogin()"> 
+                        <input id="sendlogin" type="button" class="submit" aria-label="12.12345" value="login" aria-describedby="basic-addon1" v-on:click="sendLogin()"> 
+                    </div>
+                  </div>
+                  <div id="signupform" class="row row-cols-1 justify-content-center
+                    overflow-auto side-bar-content">
+                    <div class="row">
+                        <input id="namesignup" type="text" class="form-control" aria-label="12.12345" aria-describedby="basic-addon1" placeholder="nome">
+                        <input id="passwordsignup" type="text" class="form-control" aria-label="12.12345" aria-describedby="basic-addon1" placeholder="password">
+                        <input id="repeatpasswordsignup" type="text" class="form-control" aria-label="12.12345" aria-describedby="basic-addon1" placeholder="repeat password">
+                        <input id="sendsignup" type="button" class="submit" aria-label="12.12345" value="login" aria-describedby="basic-addon1" v-on:click="sendSignUp()">
                     </div>
                   </div>
                   <div class="row align-items-start justify-content-center

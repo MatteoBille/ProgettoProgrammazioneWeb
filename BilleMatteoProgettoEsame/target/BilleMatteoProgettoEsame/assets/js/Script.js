@@ -1,11 +1,10 @@
-
-      /*
+/*
    Return function which will be called when `hide()` method is triggered,
    it must necessarily call the `done()` function
     to complete hiding process 
   */
 
-let jwtToken="";
+let jwtToken = "";
 let map = L.map("map").setView([45.624029, 13.789859], 13);
 let geoJsonTemplate = {
   features: [
@@ -143,8 +142,8 @@ let ElencoViaggi = new Vue({
       ]
     }]*/
     viaggi: [],
-    nextId:0,
-    date:""
+    nextId: 0,
+    date: "",
   },
   methods: {
     mostraTappe: function (event, id) {
@@ -160,18 +159,18 @@ let ElencoViaggi = new Vue({
       ElencoTappe.retrieveData(id);
     },
     aggiungiViaggio: function (event) {
-      id=this.nextId;
+      id = this.nextId;
       let geoJsonNuovoViaggio = geoJsonTemplate;
       geoJsonNuovoViaggio.id = String(id);
       geoJsonNuovoViaggio.nome = "viaggio" + id;
-      date=this.reverseData(this.date);
+      date = this.reverseData(this.date);
 
-      let header={
+      let header = {
         "Content-Type": "application/json",
-      }
+      };
       header = this.setAuthHeader(header);
       let response = fetch(
-        `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi?data=${date}`,
+        `http://localhost:8080/BilleMatteoProgettoEsame/apiViaggi/viaggi?data=${date}`,
         {
           method: "POST",
           headers: header,
@@ -185,16 +184,16 @@ let ElencoViaggi = new Vue({
         });
     },
     eliminaViaggio: function (event, id) {
-      let header={
+      let header = {
         "Content-Type": "application/json",
-      }
+      };
       header = this.setAuthHeader(header);
       let response = fetch(
-        "http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi",
+        "http://localhost:8080/BilleMatteoProgettoEsame/apiViaggi/viaggi",
         {
           method: "DELETE",
           headers: header,
-          body: JSON.stringify({ "id": id }),
+          body: JSON.stringify({ id: id }),
         }
       ).then(() => {
         this.pulisciMappa();
@@ -231,21 +230,21 @@ let ElencoViaggi = new Vue({
       this.disegnaViaggio();
     },
     retrieveData: function () {
-      let date=this.reverseData(this.date);
-      let header={};
+      let date = this.reverseData(this.date);
+      let header = {};
       header = this.setAuthHeader(header);
       let response = fetch(
-        `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi?data=${date}`,
+        `http://localhost:8080/BilleMatteoProgettoEsame/apiViaggi/viaggi?data=${date}`,
         {
-          method:"GET",
-          headers:header
+          method: "GET",
+          headers: header,
         }
       )
         .then((response) => response.json())
         .then((data) => {
-          if(data.message!=="NotAccepted"){
-            this.viaggi=data.geoJson;
-            this.nextId=data.id+1;
+          if (data.message !== "NotAccepted") {
+            this.viaggi = data.geoJson;
+            this.nextId = data.id + 1;
             this.disegnaViaggio();
           }
         });
@@ -254,38 +253,38 @@ let ElencoViaggi = new Vue({
       geoJsonLayer.removeFrom(map);
       geoJsonLayer = "";
     },
-    setThisDay(){
+    setThisDay() {
       /*https://www.codegrepper.com/code-examples/javascript/today+date+javascript+yyyy-mm-dd*/
       var today = new Date();
-      var dd = String(today.getDate()).padStart(2, '0');
-      var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+      var dd = String(today.getDate()).padStart(2, "0");
+      var mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
       var yyyy = today.getFullYear();
 
-      today = dd + '/' + mm + '/' + yyyy;
+      today = dd + "/" + mm + "/" + yyyy;
       /*********************/
-      
-      this.date=today;
-    },
-    reverseData:function(date){
-      let datePieces=date.split('/');
-      let dd=datePieces[0];
-     
-      let mm=datePieces[1];
 
-      let yyyy=datePieces[2];
-
-      return yyyy+"/"+mm+"/"+dd;
+      this.date = today;
     },
-    setNewDate:function(newDate){
+    reverseData: function (date) {
+      let datePieces = date.split("/");
+      let dd = datePieces[0];
+
+      let mm = datePieces[1];
+
+      let yyyy = datePieces[2];
+
+      return yyyy + "/" + mm + "/" + dd;
+    },
+    setNewDate: function (newDate) {
       this.pulisciMappa();
       this.retrieveData();
     },
-    setAuthHeader:function(header){
-      if(jwtToken!==""){
-        header.Authorization="Bearer "+jwtToken
+    setAuthHeader: function (header) {
+      if (jwtToken !== "") {
+        header.Authorization = "Bearer " + jwtToken;
       }
       return header;
-    }
+    },
   },
   mounted: function () {
     this.setThisDay();
@@ -312,18 +311,18 @@ let ElencoTappe = new Vue({
       ElencoViaggi.retrieveData();
     },
     retrieveData: function (id) {
-      let header={};
+      let header = {};
       header = this.setAuthHeader(header);
       let response = fetch(
-        `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi/${id}`,
+        `http://localhost:8080/BilleMatteoProgettoEsame/apiViaggi/viaggi/${id}`,
         {
-          method:"GET",
-          headers:header
+          method: "GET",
+          headers: header,
         }
       )
         .then((response) => response.json())
         .then((data) => {
-          if(data.message!=="NotAccepted"){
+          if (data.message !== "NotAccepted") {
             this.viaggio = data;
             this.setTappe();
             this.disegnaViaggio();
@@ -347,12 +346,12 @@ let ElencoTappe = new Vue({
     },
     salvaViaggio: function () {
       let id = parseInt(this.viaggio.id);
-      let header={
+      let header = {
         "Content-Type": "application/json",
-      }
+      };
       header = this.setAuthHeader(header);
       let response = fetch(
-        `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi/${id}`,
+        `http://localhost:8080/BilleMatteoProgettoEsame/apiViaggi/viaggi/${id}`,
         {
           method: "PUT",
           headers: header,
@@ -438,24 +437,27 @@ let ElencoTappe = new Vue({
       let idTappa = this.tappe.length;
 
       if (lat === undefined || lng === undefined) {
-        let coords = [0,0];
-        let newTappa = { "idTappa": idTappa, "coordinates": coords };
+        let coords = [0, 0];
+        let newTappa = { idTappa: idTappa, coordinates: coords };
         this.tappe.push(newTappa);
         this.$nextTick(() => {
           this.modificaPunto(null, idTappa);
         });
       } else {
         let coords = [lat, lng];
-        
-        let newTappa = { "idTappa": idTappa, "coordinates": coords };
+
+        let newTappa = { idTappa: idTappa, coordinates: coords };
         this.tappe.push(newTappa);
         this.aggiornaTutteLeCoordinateViaggio();
       }
     },
-    aggiornaTutteLeCoordinateViaggio:function(){
-      this.viaggio.features[0].geometry.coordinates=[];
+    aggiornaTutteLeCoordinateViaggio: function () {
+      this.viaggio.features[0].geometry.coordinates = [];
       this.tappe.forEach((tappa) => {
-        this.viaggio.features[0].geometry.coordinates.push([tappa.coordinates[1],tappa.coordinates[0]]);
+        this.viaggio.features[0].geometry.coordinates.push([
+          tappa.coordinates[1],
+          tappa.coordinates[0],
+        ]);
       });
       this.pulisciMappa();
       this.disegnaViaggio();
@@ -466,22 +468,21 @@ let ElencoTappe = new Vue({
       );
       let selectedElem;
       if (elements.length !== 0) {
-        for(let i=0;i<elements.length;++i){
-          if(elements[i].style.display === "flex"){
-            selectedElem=elements[i];
+        for (let i = 0; i < elements.length; ++i) {
+          if (elements[i].style.display === "flex") {
+            selectedElem = elements[i];
             break;
           }
         }
-      }else{
-        selectedElem=null;
+      } else {
+        selectedElem = null;
       }
 
-      if(selectedElem===null || selectedElem===undefined){
+      if (selectedElem === null || selectedElem === undefined) {
         this.aggiungiTappaAllaFine(latlng.lat, latlng.lng);
-      }else{
-        alert ("inserire i dati nel form prima di aggiungere un nuovo punto");
+      } else {
+        alert("inserire i dati nel form prima di aggiungere un nuovo punto");
       }
-      
     },
     setMapListener: function () {
       map.on("click", function (ev) {
@@ -491,12 +492,12 @@ let ElencoTappe = new Vue({
     removeMapListener: function () {
       map.off("click");
     },
-    setAuthHeader:function(header){
-      if(jwtToken!==""){
-        header.Authorization="Bearer "+jwtToken
+    setAuthHeader: function (header) {
+      if (jwtToken !== "") {
+        header.Authorization = "Bearer " + jwtToken;
       }
       return header;
-    }
+    },
   },
   filters: {
     formatNumber: function (value) {
@@ -505,64 +506,97 @@ let ElencoTappe = new Vue({
       }
       return parseFloat(value).toFixed(2);
     },
-  }
+  },
 });
 
 let SignUpLoginButtons = new Vue({
-  el:signUpLogin,
-  methods:{
-    showLoginForm:function(){
-      document.querySelector("#login").style.display="block";
+  el: signUpLogin,
+  methods: {
+    showLoginForm: function () {
+      document.querySelector("#login").style.display = "block";
+      document.querySelector("#loginform").style.display = "block";
+      document.querySelector("#signupform").style.display = "none";
     },
-    showSignUpForm:function(){
-      document.querySelector("#login").style.display="block";
+    showSignUpForm: function () {
+      document.querySelector("#login").style.display = "block";
+      document.querySelector("#signupform").style.display = "block";
+      document.querySelector("#loginform").style.display = "none";
     },
-  }
+  },
 });
 
-let login = new Vue({
-  el:loginForm,
-  methods:{
-    sendLogin:function(){
+let loginWindows = new Vue({
+  el: login,
+  methods: {
+    sendLogin: function () {
       let name = document.querySelector("#name").value;
       let password = document.querySelector("#password").value;
-  
+
       // https://stackoverflow.com/questions/34952392/simple-way-to-hash-password-client-side-right-before-submitting-form
-      let hashObj = new jsSHA("SHA-512", "TEXT", {numRounds: 1});
+      let hashObj = new jsSHA("SHA-512", "TEXT", { numRounds: 1 });
       hashObj.update(password);
       let hash = hashObj.getHash("HEX");
-  
-      let Auth = btoa(name+"."+hash);
-      let header={
-        "Authorization":`Basic ${Auth}`
-      }
+
+      let Auth = btoa(name + "." + hash);
+      let header = {
+        Authorization: `Basic ${Auth}`,
+      };
       let response = fetch(
-        `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi`,
+        `http://localhost:8080/BilleMatteoProgettoEsame/apiLogin/login`,
         {
-          method:"GET",
-          headers:header,
+          method: "GET",
+          headers: header,
         }
       )
         .then((response) => response.json())
         .then((data) => {
-          jwtToken=data.jwtToken;
-          this.mostraViaggi(),
+          jwtToken = data.jwtToken;
+          this.mostraViaggi();
           ElencoViaggi.retrieveData();
         });
-  
-    },mostraViaggi:function(){
+    },
+    sendSignUp: function () {
+      let name = document.querySelector("#namesignup").value;
+      let password1 = document.querySelector("#passwordsignup").value;
+      let password2 = document.querySelector("#repeatpasswordsignup").value;
+
+      if (password1 === password2) {
+        let hashObj = new jsSHA("SHA-512", "TEXT", { numRounds: 1 });
+        hashObj.update(password1);
+        let hash = hashObj.getHash("HEX");
+
+        let Auth = btoa(name + "." + hash);
+        let header = {
+          "Authorization": `Basic ${Auth}`,
+          "Content-Type": "application/json"
+        };
+        let response = fetch(
+          `http://localhost:8080/BilleMatteoProgettoEsame/apiSignUp/SignUp`,
+          {
+            method: "GET",
+            headers: header
+          }
+        ).then((response)=>response.json())
+        .then((data)=>{
+          jwtToken=data.jwtToken;
+          console.log(jwtToken);
+          this.mostraViaggi(); 
+          ElencoViaggi.retrieveData();
+        });
+      }
+    },
+    mostraViaggi: function () {
       divViaggi = document.querySelector("#elenco-viaggi-giornata");
       divViaggi.style.display = "block";
       divTappe = document.querySelector("#login");
       divTappe.style.display = "none";
-    }
-  }
+    },
+  },
 });
 
-
-let setAuthHeader= function(header){
-  if(jwtToken!==""){
-    header.Authorization="Bearer"+jwtToken
+let setAuthHeader = function (header) {
+  if (jwtToken !== "") {
+    header.Authorization = "Bearer" + jwtToken;
   }
   return header;
-}
+};
