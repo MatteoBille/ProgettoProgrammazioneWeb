@@ -12,7 +12,7 @@ div.col>a>img{
     background-color:#2C2B3C ;
 }
 
-.side-bar-title h3{
+.side-bar-title h1{
     color:white;
 }
 
@@ -36,7 +36,7 @@ div.col>a>img{
     background-color:#2C2B3C ;
 }
 
-.side-bar-footer h3{
+.side-bar-footer h1{
     color:white;
 }
 
@@ -45,7 +45,8 @@ div.col>a>img{
 }
 
 .right-side{
-    background-color: #403F4C;
+    background-color: #656675
+    ;
 }
 header{
     background-color: #121420;
@@ -66,7 +67,7 @@ footer{
 }
 
 .dropdown-button :hover{
-    background-color: #403F4C;
+    background-color: #7f7e92;
 }
 .dropdown-button {
     background-color: #403F4C;
@@ -77,9 +78,14 @@ footer{
 }
 
 #elenco-viaggi-giornata{
-    display:block;
+    display:none;
     height:auto;
 }
+
+#login{
+    display:none;
+}
+
 #map{
     height: 90%;
     width: 90%;
@@ -101,10 +107,25 @@ p , button{
     font-size: 1vw;
 }
 
-h3{
-    font-size: 2vw;
+h1{
+    font-size: 75%;
 }
 
 #elenco-viaggio-viaggio-titolo{
     white-space: normal;
+}
+
+#elenco-viaggio-viaggio-titolo button{
+    background-color:#121420;
+    border-color:#16161d;
+}
+
+#elenco-viaggio-viaggio-titolo button:hover{
+    background-color:#2C2B3C;
+    border-color:#16161d;
+}
+
+.btn{
+    background-color:#1B2432;;
+    border-color:#0e131b;;
 }
