@@ -1,12 +1,13 @@
 package it.units.programmazioneweb;
 
 import com.google.gson.Gson;
+import com.sun.net.httpserver.HttpContext;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.core.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,15 +16,22 @@ import java.sql.Statement;
 @Path("/viaggi")
 public class RestServlet {
 
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getTravels( @QueryParam("data") String data) throws SQLException {
+    public Response getTravels( @QueryParam("data") String data,@Context ContainerRequestContext crc) throws SQLException {
+
+        String debugString="";
         Connection conn = sqliteConnection.connect();
-        //StringBuilder geoJsonResponse = new StringBuilder();
+
         JSONArray geoJsonResponse = new JSONArray();
         JSONObject response= new JSONObject();
 
-        String query1 = "SELECT * FROM Viaggi WHERE dataViaggio = \""+data+"\";";
+
+
+        String idUtente = crc.getProperty("idUtente").toString();
+
+        String query1 = "SELECT * FROM Viaggi WHERE dataViaggio = \""+data+"\" AND idUtente= "+idUtente+";";
         try (Statement stmt = conn.createStatement()) {
 
             ResultSet rs = stmt.executeQuery(query1);
@@ -38,7 +46,6 @@ public class RestServlet {
         }
         conn.close();
         response.put("geoJson",geoJsonResponse);
-
         conn = sqliteConnection.connect();
 
         String query2 = "SELECT MAX(idViaggio) as idViaggio FROM Viaggi;";
@@ -58,14 +65,15 @@ public class RestServlet {
     }
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addTravel(@QueryParam("data") String data,String requestBody) throws SQLException {
+    public Response addTravel(@QueryParam("data") String data,@Context ContainerRequestContext crc,String requestBody) throws SQLException {
         Connection conn = sqliteConnection.connect();
         //StringBuilder response = new StringBuilder();
+        String idUtente = crc.getProperty("idUtente").toString();
 
         JSONObject jsonRequest=new JSONObject(requestBody);
         String id = jsonRequest.getString("id");
         JSONObject jsonResponse=new JSONObject();
-        String queryInsert = "INSERT INTO Viaggi VALUES("+id+",1,'"+requestBody+"','"+data+"');";
+        String queryInsert = "INSERT INTO Viaggi VALUES("+id+","+idUtente+",'"+requestBody+"','"+data+"');";
         try (Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(queryInsert);
         } catch (SQLException throwables) {

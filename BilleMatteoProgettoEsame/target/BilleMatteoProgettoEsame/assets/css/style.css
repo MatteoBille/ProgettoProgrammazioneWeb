@@ -77,9 +77,14 @@ footer{
 }
 
 #elenco-viaggi-giornata{
-    display:block;
+    display:none;
     height:auto;
 }
+
+#login{
+    display:none;
+}
+
 #map{
     height: 90%;
     width: 90%;

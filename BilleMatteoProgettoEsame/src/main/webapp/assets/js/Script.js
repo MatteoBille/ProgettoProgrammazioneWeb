@@ -5,9 +5,9 @@
     to complete hiding process 
   */
 
-
-var map = L.map("map").setView([45.624029, 13.789859], 13);
-var geoJsonTemplate = {
+let jwtToken="";
+let map = L.map("map").setView([45.624029, 13.789859], 13);
+let geoJsonTemplate = {
   features: [
     {
       geometry: {
@@ -39,7 +39,7 @@ L.tileLayer(
 
 let geoJsonLayer = L.geoJSON();
 
-var ElencoViaggi = new Vue({
+let ElencoViaggi = new Vue({
   el: "#elenco-viaggi-giornata",
   data: {
     /*viaggi: [{
@@ -165,13 +165,16 @@ var ElencoViaggi = new Vue({
       geoJsonNuovoViaggio.id = String(id);
       geoJsonNuovoViaggio.nome = "viaggio" + id;
       date=this.reverseData(this.date);
+
+      let header={
+        "Content-Type": "application/json",
+      }
+      header = this.setAuthHeader(header);
       let response = fetch(
         `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi?data=${date}`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: header,
           body: JSON.stringify(geoJsonNuovoViaggio),
         }
       )
@@ -182,14 +185,16 @@ var ElencoViaggi = new Vue({
         });
     },
     eliminaViaggio: function (event, id) {
+      let header={
+        "Content-Type": "application/json",
+      }
+      header = this.setAuthHeader(header);
       let response = fetch(
         "http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi",
         {
           method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ id: id }),
+          headers: header,
+          body: JSON.stringify({ "id": id }),
         }
       ).then(() => {
         this.pulisciMappa();
@@ -198,7 +203,7 @@ var ElencoViaggi = new Vue({
     },
     disegnaViaggio: function () {
       geoJsonLayer = L.geoJSON();
-      var myStyle = function (viaggio) {
+      let myStyle = function (viaggio) {
         switch (viaggio.properties.selected) {
           case "no":
             return { color: "#1766EB", weight: 3 };
@@ -227,14 +232,22 @@ var ElencoViaggi = new Vue({
     },
     retrieveData: function () {
       let date=this.reverseData(this.date);
+      let header={};
+      header = this.setAuthHeader(header);
       let response = fetch(
-        `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi?data=${date}`
+        `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi?data=${date}`,
+        {
+          method:"GET",
+          headers:header
+        }
       )
         .then((response) => response.json())
         .then((data) => {
-          this.viaggi=data.geoJson;
-          this.nextId=data.id+1;
-          this.disegnaViaggio();
+          if(data.message!=="NotAccepted"){
+            this.viaggi=data.geoJson;
+            this.nextId=data.id+1;
+            this.disegnaViaggio();
+          }
         });
     },
     pulisciMappa: function () {
@@ -266,15 +279,21 @@ var ElencoViaggi = new Vue({
     setNewDate:function(newDate){
       this.pulisciMappa();
       this.retrieveData();
+    },
+    setAuthHeader:function(header){
+      if(jwtToken!==""){
+        header.Authorization="Bearer "+jwtToken
+      }
+      return header;
     }
   },
   mounted: function () {
     this.setThisDay();
-    this.retrieveData();
+    //this.retrieveData();
   },
 });
 
-var ElencoTappe = new Vue({
+let ElencoTappe = new Vue({
   el: "#elenco-tappe-viaggio",
   data: {
     viaggio: [],
@@ -293,14 +312,22 @@ var ElencoTappe = new Vue({
       ElencoViaggi.retrieveData();
     },
     retrieveData: function (id) {
+      let header={};
+      header = this.setAuthHeader(header);
       let response = fetch(
-        `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi/${id}`
+        `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi/${id}`,
+        {
+          method:"GET",
+          headers:header
+        }
       )
         .then((response) => response.json())
         .then((data) => {
-          this.viaggio = data;
-          this.setTappe();
-          this.disegnaViaggio();
+          if(data.message!=="NotAccepted"){
+            this.viaggio = data;
+            this.setTappe();
+            this.disegnaViaggio();
+          }
         });
     },
     setTappe: function () {
@@ -320,13 +347,15 @@ var ElencoTappe = new Vue({
     },
     salvaViaggio: function () {
       let id = parseInt(this.viaggio.id);
+      let header={
+        "Content-Type": "application/json",
+      }
+      header = this.setAuthHeader(header);
       let response = fetch(
         `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi/${id}`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: header,
           body: JSON.stringify(this.viaggio),
         }
       ).then(() => {
@@ -462,6 +491,12 @@ var ElencoTappe = new Vue({
     removeMapListener: function () {
       map.off("click");
     },
+    setAuthHeader:function(header){
+      if(jwtToken!==""){
+        header.Authorization="Bearer "+jwtToken
+      }
+      return header;
+    }
   },
   filters: {
     formatNumber: function (value) {
@@ -470,5 +505,64 @@ var ElencoTappe = new Vue({
       }
       return parseFloat(value).toFixed(2);
     },
-  },
+  }
 });
+
+let SignUpLoginButtons = new Vue({
+  el:signUpLogin,
+  methods:{
+    showLoginForm:function(){
+      document.querySelector("#login").style.display="block";
+    },
+    showSignUpForm:function(){
+      document.querySelector("#login").style.display="block";
+    },
+  }
+});
+
+let login = new Vue({
+  el:loginForm,
+  methods:{
+    sendLogin:function(){
+      let name = document.querySelector("#name").value;
+      let password = document.querySelector("#password").value;
+  
+      // https://stackoverflow.com/questions/34952392/simple-way-to-hash-password-client-side-right-before-submitting-form
+      let hashObj = new jsSHA("SHA-512", "TEXT", {numRounds: 1});
+      hashObj.update(password);
+      let hash = hashObj.getHash("HEX");
+  
+      let Auth = btoa(name+"."+hash);
+      let header={
+        "Authorization":`Basic ${Auth}`
+      }
+      let response = fetch(
+        `http://localhost:8080/BilleMatteoProgettoEsame/api/viaggi`,
+        {
+          method:"GET",
+          headers:header,
+        }
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          jwtToken=data.jwtToken;
+          this.mostraViaggi(),
+          ElencoViaggi.retrieveData();
+        });
+  
+    },mostraViaggi:function(){
+      divViaggi = document.querySelector("#elenco-viaggi-giornata");
+      divViaggi.style.display = "block";
+      divTappe = document.querySelector("#login");
+      divTappe.style.display = "none";
+    }
+  }
+});
+
+
+let setAuthHeader= function(header){
+  if(jwtToken!==""){
+    header.Authorization="Bearer"+jwtToken
+  }
+  return header;
+}

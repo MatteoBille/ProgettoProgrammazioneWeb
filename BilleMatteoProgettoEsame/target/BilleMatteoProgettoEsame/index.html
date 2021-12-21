@@ -4,7 +4,9 @@
     <title>Bootstrap Example</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
- 
+    
+    <!--jjSha encription-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsSHA/2.0.2/sha.js"></script>
     <!--Bootstrap import-->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
@@ -41,8 +43,8 @@
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="navbar-nav">
-          <div class="text-end">
-            <button type="button" class="btn btn-outline-light me-2">Login</button>
+          <div id="signUpLogin" class="text-end">
+            <button type="button" class="btn btn-outline-light me-2" v-on:click="showLoginForm()">Login</button>
             <button type="button" class="btn btn-warning">Sign-up</button>
           </div>
         </div>
@@ -55,6 +57,29 @@
             <div class="col-7 h-100 p-3 left-side h-100">
               <div class="h-100 row align-items-center justify-content-center">
                 <div id="map" class="col-4 align-self-center">
+                </div>
+              </div>
+            </div>
+
+            <div id="login" class="col h-100 p-3 right-side">
+              <div class="h-100 row align-items-center justify-content-center">
+                <div class="col-4 align-self-center w-75 h-100">
+                  <div class="row align-items-start justify-content-center border side-bar-title text-white">
+                    <h3>Login</h3>
+                  </div>
+                  <div id="loginForm" class="row row-cols-1 justify-content-center
+                    overflow-auto side-bar-content">
+                    <div class="row">
+                        <input id="name" type="text" class="form-control" aria-label="12.12345" aria-describedby="basic-addon1" placeholder="nome">
+                        <input id="password" type="text" class="form-control" aria-label="12.12345" aria-describedby="basic-addon1" placeholder="password">
+                        <input id="sendLogin" type="button" class="submit" aria-label="12.12345" value="login" aria-describedby="basic-addon1" v-on:click="sendLogin()"> 
+                    </div>
+                  </div>
+                  <div class="row align-items-start justify-content-center
+                    border side-bar-footer">
+                    <div class="col shadow h-100">
+                      <h3 class="m-0">CIAO</h3></div>
+                  </div>
                 </div>
               </div>
             </div>
