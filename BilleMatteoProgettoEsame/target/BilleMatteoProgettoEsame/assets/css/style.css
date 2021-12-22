@@ -31,6 +31,10 @@ div.col>a>img{
     background-color: #d86a62;
 }
 */
+main{
+    height: 86%;
+}
+
 .side-bar-footer{
     height:10%;
     background-color:#2C2B3C ;
@@ -45,14 +49,15 @@ div.col>a>img{
 }
 
 .right-side{
-    background-color: #656675
-    ;
+    background-color: #656675;
 }
 header{
+    height: 9%;
     background-color: #121420;
 }
 
 footer{
+    height:5%;
     background-color: #121420;
 }
 
@@ -73,7 +78,11 @@ footer{
     background-color: #403F4C;
 }
 
-#elenco-tappe-viaggio{
+#modifica-elenco-tappe-viaggio{
+    display:none;
+}
+
+#visualizza-elenco-tappe-viaggio{
     display:none;
 }
 
@@ -99,7 +108,7 @@ footer{
     height:50%;
 }
 
-.elenco-viaggi{
+.elenco-viaggi, .elenco-tappe{
     height:auto;
 }
 
