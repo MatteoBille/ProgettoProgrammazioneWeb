@@ -8,7 +8,7 @@ div.col>a>img{
 }
 
 .side-bar-title{
-    height:10%;
+    height:9%;
     background-color:#2C2B3C ;
 }
 
@@ -31,8 +31,12 @@ div.col>a>img{
     background-color: #d86a62;
 }
 */
+main{
+    height: 86%;
+}
+
 .side-bar-footer{
-    height:10%;
+    height:5%;
     background-color:#2C2B3C ;
 }
 
@@ -99,7 +103,7 @@ footer{
     height:50%;
 }
 
-.elenco-viaggi{
+.elenco-viaggi, .elenco-tappe{
     height:auto;
 }
 
@@ -129,3 +133,5 @@ h1{
     background-color:#1B2432;;
     border-color:#0e131b;;
 }
+
+F
