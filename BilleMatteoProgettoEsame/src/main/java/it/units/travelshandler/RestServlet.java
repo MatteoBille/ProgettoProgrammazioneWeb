@@ -89,7 +89,6 @@ public class RestServlet {
             jsonResponse= new JSONObject(rs.getString("GeoJsonData"));
             jsonResponse.put("id",Integer.toString(rs.getInt("idViaggio")));
 
-
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
