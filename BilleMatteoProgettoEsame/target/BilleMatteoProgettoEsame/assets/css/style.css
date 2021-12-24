@@ -22,15 +22,20 @@ div.col>a>img{
     height:80%;
 }
 
+.side-bar-infos{
+    height:6%;
+}
+.side-bar-infos + .side-bar-content{
+    height:74%;
+}
+
 .side-bar-travel{
     max-height: 40%;
     background-color: #B76D68;
 }
-/*
-.side-bar-travel :hover{
-    background-color: #d86a62;
-}
-*/
+
+
+
 main{
     height: 86%;
 }
@@ -116,10 +121,6 @@ p , button{
     font-size: 1vw;
 }
 
-h1{
-    font-size: 75%;
-}
-
 #elenco-viaggio-viaggio-titolo{
     white-space: normal;
 }
@@ -138,3 +139,4 @@ h1{
     background-color:#1B2432;;
     border-color:#0e131b;;
 }
+

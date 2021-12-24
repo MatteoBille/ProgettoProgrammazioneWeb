@@ -25,7 +25,7 @@ div.col>a>img{
 .side-bar-infos{
     height:6%;
 }
-.side-bar-infos .side-bar-content{
+.side-bar-infos + .side-bar-content{
     height:74%;
 }
 
