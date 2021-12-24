@@ -304,10 +304,7 @@ let ElencoTappe = new Vue({
       this.viaggio = [];
       this.tappe = [];
 
-      if (map.hasLayer(circles)) {
-        map.removeLayer(circles);
-        circles = L.featureGroup();
-      }
+      this.pulisciCerchi();
       this.pulisciMappa();
       ElencoViaggi.retrieveData();
     },
@@ -354,18 +351,29 @@ let ElencoTappe = new Vue({
     },
     setTappe: function () {
       this.tappe = [];
-      for (
-        let i = 0;
-        i < this.viaggio.features[0].geometry.coordinates.length;
-        i++
-      ) {
+      for ( let i = 0; i < this.viaggio.features[0].geometry.coordinates.length; i++ ) {
+
+        let checkText="";
+        for(let j=1;j<this.viaggio.features.length;j++){
+          if(this.viaggio.features[j].id===i){
+            checkText=this.viaggio.features[j].properties.text;
+          }
+        }
+
         this.tappe.push({
           idTappa: i,
           coordinates: [
             this.viaggio.features[0].geometry.coordinates[i][1],
             this.viaggio.features[0].geometry.coordinates[i][0],
           ],
+          checkText:checkText
         });
+      }
+    },
+    pulisciCerchi:function(){
+      if (map.hasLayer(circles)) {
+        map.removeLayer(circles);
+        circles = L.featureGroup();
       }
     },
     pulisciMappa: function () {
@@ -381,10 +389,7 @@ let ElencoTappe = new Vue({
       return header;
     },
     EvidenziaTappa: function (id) {
-      if (map.hasLayer(circles)) {
-        map.removeLayer(circles);
-        circles = L.featureGroup();
-      }
+      this.pulisciCerchi();
 
       this.tappe.forEach(function (tappa) {
         if (tappa.idTappa === id) {
@@ -479,10 +484,7 @@ let ModificaTappe = new Vue({
       this.viaggio = [];
       this.tappe = [];
 
-      if (map.hasLayer(circles)) {
-        map.removeLayer(circles);
-        circles = L.featureGroup();
-      }
+      this.pulisciCerchi();
 
       this.removeMapListener();
       this.pulisciMappa();
@@ -582,14 +584,24 @@ let ModificaTappe = new Vue({
       }
     },
     cancellaPunto: function (event, id) {
-      event.preventDefault();
-      event.stopPropagation();
       this.tappe.splice(id, 1);
       for (let i = 0; i < this.tappe.length; ++i) {
         this.tappe[i].idTappa = i;
       }
+      console.log(id);
+      for(let i=1;i<this.viaggio.features.length;i++){
+        
+        if(this.viaggio.features[i].id>id && this.viaggio.features[i].geometry.type==="Point"){
+          console.log("prima");
+          console.log(this.viaggio.features[i].id);
+          console.log(this.viaggio.features[i].id-1);
+          this.viaggio.features[i].id=this.viaggio.features[i].id-1;
+          console.log("dopo");
+          console.log(this.viaggio.features[i]);
+        }
+      }
       this.aggiornaTutteLeCoordinateViaggio();
-      circles.removeFrom(map);
+      this.pulisciCerchi();
       this.pulisciMappa();
       this.disegnaViaggio();
     },
@@ -605,6 +617,12 @@ let ModificaTappe = new Vue({
           layer.setStyle(myStyle);
         }
       });
+    },
+    pulisciCerchi:function(){
+      if (map.hasLayer(circles)) {
+        map.removeLayer(circles);
+        circles = L.featureGroup();
+      }
     },
     pulisciMappa: function () {
       if (map.hasLayer(geoJsonLayer)) {
@@ -652,13 +670,23 @@ let ModificaTappe = new Vue({
           tappa.check = check;
           tappa.checkText = checkText;
           
-          if (tappa.check === true) {
-            puntoImportante.id = id;
-            puntoImportante.geometry.coordinates[0] = tappa.coordinates[1];
-            puntoImportante.geometry.coordinates[1] = tappa.coordinates[0];
-            puntoImportante.properties.text = tappa.checkText;
-            this.viaggio.features.push(puntoImportante);
+          let exist=false;
+          for(let i=1;i<this.viaggio.features.length;i++){
+            if(this.viaggio.features[i].id===id){
+              exist=true;
+            }
+          }
+
+          if (tappa.check === true ) {
+            if(exist===false){
+              puntoImportante.id = id;
+              puntoImportante.geometry.coordinates[0] = tappa.coordinates[1];
+              puntoImportante.geometry.coordinates[1] = tappa.coordinates[0];
+              puntoImportante.properties.text = tappa.checkText;
+              this.viaggio.features.push(puntoImportante);
+            }
           }else{
+            tappa.checkText = "";
             for(let i=1;i<this.viaggio.features.length;i++){
               if(this.viaggio.features[i].id===id){
                 this.viaggio.features.splice(i,1);
@@ -674,21 +702,17 @@ let ModificaTappe = new Vue({
       });
 
       this.$forceUpdate();
-      /*for (let i = 0;i < this.tappe.length;i++) {
-          this.viaggio.features[0].geometry.coordinates.push(this.tappe[i].coordinates);
-        }*/
-
+      circles.removeFrom(map);
       this.pulisciMappa();
       this.disegnaViaggio();
-      /*}else{
-        alert("dati inseriti mal formattati");
-      }*/
+
     },
     latlongFormat: function (string) {
       const regex = /"[0-9]*\.[0-9]*/;
       return regex.test(string);
     },
     aggiungiTappaAllaFine(lat, lng) {
+     
       let idTappa = this.tappe.length;
 
       if (lat === undefined || lng === undefined) {
@@ -700,7 +724,7 @@ let ModificaTappe = new Vue({
         });
       } else {
         let coords = [lat, lng];
-
+        window.location.href="#tappa-" + idTappa;
         let newTappa = { idTappa: idTappa, coordinates: coords };
         this.tappe.push(newTappa);
         this.aggiornaTutteLeCoordinateViaggio();
@@ -794,10 +818,7 @@ let ModificaTappe = new Vue({
     },
     EvidenziaTappa: function (id) {
 
-      if (map.hasLayer(circles)) {
-        map.removeLayer(circles);
-        circles = L.featureGroup();
-      }
+      this.pulisciCerchi();
 
       this.tappe.forEach(function (tappa) {
         if (tappa.idTappa === id) {
@@ -869,18 +890,55 @@ let ModificaTappe = new Vue({
 });
 
 let SignUpLoginButtons = new Vue({
-  el: signUpLogin,
+  el: signUpLoginLogout,
+  data:{
+    nome:""
+  },
   methods: {
     showLoginForm: function () {
       document.querySelector("#login").style.display = "block";
       document.querySelector("#loginform").style.display = "block";
+      document.querySelector("#right-side").style.display = "block";
       document.querySelector("#signupform").style.display = "none";
+      
     },
     showSignUpForm: function () {
       document.querySelector("#login").style.display = "block";
       document.querySelector("#signupform").style.display = "block";
+      document.querySelector("#right-side").style.display = "block";
       document.querySelector("#loginform").style.display = "none";
     },
+    logout: function () {
+      document.querySelector("#signUpLogin").style.display = "block";
+      document.querySelector("#right-side").style.display = "none";
+      document.querySelector("#logout").style.display = "none";
+      jwtToken="";
+      this.pulisciCerchi();
+      this.pulisciMappa();
+    },
+    showLogoutButton: function () {
+      document.querySelector("#signUpLogin").style.display = "none";
+      document.querySelector("#logout").style.display = "block";
+    },
+    nascondiLogout:function(){
+      document.querySelector("#logout").style.display = "none";
+      document.querySelector("#right-side").style.display = "none";
+    },
+    pulisciCerchi:function(){
+      if (map.hasLayer(circles)) {
+        map.removeLayer(circles);
+        circles = L.featureGroup();
+      }
+    },
+    pulisciMappa: function () {
+      if (map.hasLayer(geoJsonLayer)) {
+        geoJsonLayer.removeFrom(map);
+        geoJsonLayer = L.geoJSON();
+      }
+    },
+  },
+  mounted:function(){
+    this.nascondiLogout();
   },
 });
 
@@ -890,6 +948,8 @@ let loginWindows = new Vue({
     sendLogin: function () {
       let name = document.querySelector("#name").value;
       let password = document.querySelector("#password").value;
+      document.querySelector("#name").value="";
+      document.querySelector("#password").value="";
 
       // https://stackoverflow.com/questions/34952392/simple-way-to-hash-password-client-side-right-before-submitting-form
       let hashObj = new jsSHA("SHA-512", "TEXT", { numRounds: 1 });
@@ -910,6 +970,7 @@ let loginWindows = new Vue({
         .then((response) => response.json())
         .then((data) => {
           jwtToken = data.jwtToken;
+          SignUpLoginButtons.showLogoutButton();
           this.mostraViaggi();
           ElencoViaggi.retrieveData();
         });
@@ -918,6 +979,9 @@ let loginWindows = new Vue({
       let name = document.querySelector("#namesignup").value;
       let password1 = document.querySelector("#passwordsignup").value;
       let password2 = document.querySelector("#repeatpasswordsignup").value;
+      document.querySelector("#namesignup").value="";
+      document.querySelector("#passwordsignup").value="";
+      document.querySelector("#repeatpasswordsignup").value="";
 
       if (password1 === password2) {
         let hashObj = new jsSHA("SHA-512", "TEXT", { numRounds: 1 });

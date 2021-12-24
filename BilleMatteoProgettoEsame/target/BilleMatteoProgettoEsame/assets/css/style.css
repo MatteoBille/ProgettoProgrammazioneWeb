@@ -140,3 +140,7 @@ p , button{
     border-color:#0e131b;;
 }
 
+p{
+    padding:0px;
+    margin:0px;
+}
