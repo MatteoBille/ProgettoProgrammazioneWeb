@@ -35,38 +35,40 @@ public class loginRestServlet {
                 conn = sqliteConnection.connect();
                 byte[] decodedBytes = Base64.getDecoder().decode(request[1]);
                 String decodedString = new String(decodedBytes);
-                String[] AuthStrings = decodedString.split("\\.");
+                String[] authStrings = decodedString.split("\\.");
 
-                String query2 = "SELECT * FROM Utenti WHERE NomeUtente = \"" + AuthStrings[0] + "\";";
-                try (Statement stmt = conn.createStatement()) {
+                if (authStrings.length == 2) {
 
-                    ResultSet rs = stmt.executeQuery(query2);
-                    if (rs.next() != false) {
+                    String query2 = "SELECT * FROM Utenti WHERE NomeUtente = \"" + authStrings[0] + "\";";
+                    try (Statement stmt = conn.createStatement()) {
 
-                        String password = rs.getString("Password");
-                        int id = rs.getInt("idUtente");
-                        if (password.equals(AuthStrings[1])) {
-                            jwt = SetToken(AuthStrings[0], id);
-                            response.put("jwtToken",jwt);
+                        ResultSet rs = stmt.executeQuery(query2);
+                        if (rs.next() != false) {
+
+                            String password = rs.getString("Password");
+                            int id = rs.getInt("idUtente");
+                            if (password.equals(authStrings[1])) {
+                                jwt = SetToken(authStrings[0], id);
+                                response.put("jwtToken", jwt);
+                                response.put("message","Accepted");
+                                return Response.ok(response.toString()).build();
+                            }
                         }
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
                     }
-                } catch (SQLException throwables) {
-                    throwables.printStackTrace();
-                }
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+                    try {
+                        conn.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
 
-            } else {
-                return Response.ok("{\"message\":\"NotAccepted\"}").build();
+                }
             }
-        } else {
-            return Response.ok("{\"message\":\"NotAccepted\"}").build();
         }
-
+        response.put("message","NotAccepted");
         return Response.ok(response.toString()).build();
+
     }
 
     public String SetToken(String name, int id) {

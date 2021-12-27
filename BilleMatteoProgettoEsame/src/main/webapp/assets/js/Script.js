@@ -948,8 +948,17 @@ let loginWindows = new Vue({
     sendLogin: function () {
       let name = document.querySelector("#name").value;
       let password = document.querySelector("#password").value;
-      document.querySelector("#name").value="";
-      document.querySelector("#password").value="";
+      if(name ==""){
+        alert("Attenzione nome non inserito");
+        return "";
+      }
+
+      if(password ==""){
+        alert("Attenzione password non inserita");
+        return "";
+      }
+
+
 
       // https://stackoverflow.com/questions/34952392/simple-way-to-hash-password-client-side-right-before-submitting-form
       let hashObj = new jsSHA("SHA-512", "TEXT", { numRounds: 1 });
@@ -969,19 +978,34 @@ let loginWindows = new Vue({
       )
         .then((response) => response.json())
         .then((data) => {
-          jwtToken = data.jwtToken;
-          SignUpLoginButtons.showLogoutButton();
-          this.mostraViaggi();
-          ElencoViaggi.retrieveData();
+          if(data.message==="Accepted"){  
+            jwtToken = data.jwtToken;
+            SignUpLoginButtons.showLogoutButton();
+            this.mostraViaggi();
+            ElencoViaggi.retrieveData();
+          }else{
+            alert("Errore nel login, riprova");
+            document.querySelector("#password").value="";
+            return ""
+          }
         });
+
+        document.querySelector("#name").value="";
+        document.querySelector("#password").value="";
     },
     sendSignUp: function () {
       let name = document.querySelector("#namesignup").value;
       let password1 = document.querySelector("#passwordsignup").value;
       let password2 = document.querySelector("#repeatpasswordsignup").value;
-      document.querySelector("#namesignup").value="";
-      document.querySelector("#passwordsignup").value="";
-      document.querySelector("#repeatpasswordsignup").value="";
+      if(name ==""){
+        alert("Attenzione nome non inserito");
+        return "";
+      }
+
+      if(password1 ==""){
+        alert("Attenzione prima password non inserita");
+        return "";
+      }
 
       if (password1 === password2) {
         let hashObj = new jsSHA("SHA-512", "TEXT", { numRounds: 1 });
@@ -1007,7 +1031,15 @@ let loginWindows = new Vue({
             this.mostraViaggi();
             ElencoViaggi.retrieveData();
           });
+      }else{  
+        alert("Le password non corrispondono");
+        document.querySelector("#repeatpasswordsignup").value="";
+        return "";  
       }
+      
+      document.querySelector("#namesignup").value="";
+      document.querySelector("#passwordsignup").value="";
+      document.querySelector("#repeatpasswordsignup").value="";
     },
     mostraViaggi: function () {
       divViaggi = document.querySelector("#elenco-viaggi-giornata");

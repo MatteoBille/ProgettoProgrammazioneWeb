@@ -27,12 +27,15 @@ public class RestServlet {
 
 
 
-        String idUtente = crc.getProperty("idUtente").toString();
+        String idUser = crc.getProperty("idUtente").toString();
 
-        String query1 = "SELECT * FROM Viaggi WHERE dataViaggio = \""+data+"\" AND idUtente= "+idUtente+";";
+        String selectUserTravelsByDate = "SELECT * FROM Viaggi WHERE dataViaggio = \""+data+"\" AND idUtente= "+idUser+";";
+
+        String selectMaxIdViaggio = "SELECT MAX(idViaggio) as idViaggio FROM Viaggi;";
+
         try (Statement stmt = conn.createStatement()) {
 
-            ResultSet rs = stmt.executeQuery(query1);
+            ResultSet rs = stmt.executeQuery(selectUserTravelsByDate);
             while (rs.next()) {
                 JSONObject jsonObject = new JSONObject(rs.getString("GeoJsonData"));
                 jsonObject.put("id",Integer.toString(rs.getInt("idViaggio")));
@@ -42,14 +45,13 @@ public class RestServlet {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-        conn.close();
-        response.put("geoJson",geoJsonResponse);
-        conn = sqliteConnection.connect();
 
-        String query2 = "SELECT MAX(idViaggio) as idViaggio FROM Viaggi;";
+        response.put("geoJson",geoJsonResponse);
+
+
         try (Statement stmt = conn.createStatement()) {
 
-            ResultSet rs = stmt.executeQuery(query2);
+            ResultSet rs = stmt.executeQuery(selectMaxIdViaggio);
             while (rs.next()) {
                 response.put("id",rs.getInt("idViaggio"));
             }
@@ -65,19 +67,16 @@ public class RestServlet {
     @Produces(MediaType.APPLICATION_JSON)
     public Response addTravel(@QueryParam("data") String data,@Context ContainerRequestContext crc,String requestBody) throws SQLException {
         Connection conn = sqliteConnection.connect();
-        String debugString="";
-        String idUtente = crc.getProperty("idUtente").toString();
 
-        debugString+=idUtente+"\n";
-        debugString+=data+"\n";
-        debugString+=requestBody+"\n\n\n\n\"";
+        String idUser = crc.getProperty("idUtente").toString();
+
         JSONObject jsonRequest=new JSONObject(requestBody);
         String id = jsonRequest.getString("id");
         JSONObject jsonResponse=new JSONObject();
-        String queryInsert = "INSERT INTO Viaggi VALUES("+id+","+idUtente+",'"+requestBody+"','"+data+"');";
-        debugString+=queryInsert+"\n";
+        String insertIntoViaggiNewTravel = "INSERT INTO Viaggi VALUES("+id+","+idUser+",'"+requestBody+"','"+data+"');";
+
         try (Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(queryInsert);
+            stmt.executeUpdate(insertIntoViaggiNewTravel);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -94,9 +93,7 @@ public class RestServlet {
         }
 
         conn.close();
-        //debugString+="Fine"+"\n";
         return Response.ok(jsonResponse.toString()).build();
-        //return Response.ok(debugString).build();
     }
 
     @DELETE
@@ -105,49 +102,37 @@ public class RestServlet {
         Connection conn = sqliteConnection.connect();
 
         JSONObject jsonRequest=new JSONObject(requestBody);
-        String id = jsonRequest.getString("id");
+        String idViaggio = jsonRequest.getString("id");
 
         JSONObject jsonResponse=new JSONObject();
-        JSONArray jsonArrayResponse =new JSONArray();
-        String queryInsert = "DELETE FROM Viaggi WHERE idViaggio="+id+";";
-        try (Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(queryInsert);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        conn.close();
-        conn = sqliteConnection.connect();
-        String querySelect = "SELECT * FROM Viaggi;";
+
+        String deleteFromViaggiByIdViaggio = "DELETE FROM Viaggi WHERE idViaggio="+idViaggio+";";
 
         try (Statement stmt = conn.createStatement()) {
-            ResultSet rs = stmt.executeQuery(querySelect);
-            while (rs.next()) {
-                jsonResponse= new JSONObject(rs.getString("GeoJsonData"));
-                jsonResponse.put("id",Integer.toString(rs.getInt("idViaggio")));
-                jsonArrayResponse.put(jsonResponse);
-            }
-
-
-
-
+            stmt.executeUpdate(deleteFromViaggiByIdViaggio);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
 
+        jsonResponse.put("deleted","ok");
+
         conn.close();
 
-        return Response.ok(jsonArrayResponse.toString()).build();
+        return Response.ok(jsonResponse.toString()).build();
     }
 
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getTravelById(@PathParam("id") int id) throws SQLException {
+    public Response getTravelById(@PathParam("id") int idViaggio) throws SQLException {
         Connection conn = sqliteConnection.connect();
         JSONObject jsonObject=null;
+
+
+        String selectViaggiByIdViaggio = "SELECT IdViaggio,GeoJsonData FROM Viaggi WHERE idViaggio="+idViaggio+";";
+
         try (Statement stmt = conn.createStatement()) {
-            String query = "SELECT IdViaggio,GeoJsonData FROM Viaggi WHERE idViaggio="+id+";";
-            ResultSet rs = stmt.executeQuery(query);
+            ResultSet rs = stmt.executeQuery(selectViaggiByIdViaggio);
             jsonObject= new JSONObject(rs.getString("GeoJsonData"));
             jsonObject.put("id",Integer.toString(rs.getInt("idViaggio")));
 
@@ -162,22 +147,20 @@ public class RestServlet {
     @PUT
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateTravelById(@PathParam("id") int id,String geoJson) throws SQLException {
+    public Response updateTravelById(@PathParam("id") int idViaggio,String geoJson) throws SQLException {
         Connection conn = sqliteConnection.connect();
         JSONObject jsonResponse=null;
+        String updateViaggio = "UPDATE Viaggi SET GeoJsonData ='"+geoJson+"' WHERE idViaggio="+idViaggio+";";
+        String selectViaggioByidViaggio = "SELECT IdViaggio,GeoJsonData FROM Viaggi WHERE IdViaggio="+idViaggio+";";
+
         try (Statement stmt = conn.createStatement()) {
-            String query = "UPDATE Viaggi SET GeoJsonData ='"+geoJson+"' WHERE idViaggio="+id+";";
-            stmt.executeUpdate(query);
+            stmt.executeUpdate(updateViaggio);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
 
-        conn.close();
-        conn = sqliteConnection.connect();
-
-        String querySelect = "SELECT IdViaggio,GeoJsonData FROM Viaggi WHERE IdViaggio=="+id+";";
         try (Statement stmt = conn.createStatement()) {
-            ResultSet rs = stmt.executeQuery(querySelect);
+            ResultSet rs = stmt.executeQuery(selectViaggioByidViaggio);
             jsonResponse= new JSONObject(rs.getString("GeoJsonData"));
             jsonResponse.put("id",Integer.toString(rs.getInt("idViaggio")));
 
@@ -188,12 +171,4 @@ public class RestServlet {
         conn.close();
         return Response.ok(jsonResponse.toString()).build();
     }
-/*
-    @DELETE
-    @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteStage(@PathParam("id") int id,String requestBody) throws SQLException {
-    }
-
-*/
 }
