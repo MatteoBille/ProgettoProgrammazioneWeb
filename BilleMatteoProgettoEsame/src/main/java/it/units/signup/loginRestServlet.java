@@ -6,6 +6,7 @@ import io.jsonwebtoken.impl.TextCodec;
 import it.units.travelshandler.sqliteConnection;
 import org.json.JSONObject;
 
+import javax.servlet.ServletContext;
 import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
@@ -19,12 +20,18 @@ import java.util.List;
 @Path("/login")
 public class loginRestServlet {
 
-    private static final String SECRET_KEY = "Yn2kjibddFAWtnPJ2AFlL8WXmohJMCvigQggaEypa5E=";
+    private final String SECRET_KEY = "Yn2kjibddFAWtnPJ2AFlL8WXmohJMCvigQggaEypa5E=";
+
+    @Context ServletContext context;
+
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response SetNewUser(@Context ContainerRequestContext ctx) throws SQLException {
-        Connection conn = sqliteConnection.connect();
+
+        String urlConnection = context.getInitParameter("DatabaseUrl");
+        Connection conn = sqliteConnection.connect(urlConnection);
+
         String jwt = "";
         JSONObject response =new JSONObject();
         if (ctx.getHeaders().get("Authorization") != null) {
@@ -32,7 +39,6 @@ public class loginRestServlet {
             String[] request = auth.get(0).toString().split(" ");
 
             if (request[0].equals(("Basic"))) {
-                conn = sqliteConnection.connect();
                 byte[] decodedBytes = Base64.getDecoder().decode(request[1]);
                 String decodedString = new String(decodedBytes);
                 String[] authStrings = decodedString.split("\\.");

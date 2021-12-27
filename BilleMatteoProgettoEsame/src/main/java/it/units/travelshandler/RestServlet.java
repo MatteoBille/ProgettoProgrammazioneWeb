@@ -1,5 +1,7 @@
 package it.units.travelshandler;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -10,24 +12,37 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import javax.servlet.ServletContext;
+import javax.xml.bind.DatatypeConverter;
 
 @Path("/viaggi")
 public class RestServlet {
 
+    private static final String SECRET_KEY = "Yn2kjibddFAWtnPJ2AFlL8WXmohJMCvigQggaEypa5E=";
+    @Context ServletContext context;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getTravels( @QueryParam("data") String data,@Context ContainerRequestContext crc) throws SQLException {
+    public Response getTravels( @QueryParam("data") String data,@HeaderParam("Authorization") String auth) throws SQLException {
+        String idUser="";
+        if(auth != null && auth.split(" ")[0].equals("Bearer")){
+            idUser = checkJwt(auth.split(" ")[1]);
+            if(idUser == null){
+                return Response.ok("{\"message\":\"NotAccepted\"").build();
+            }
+        }else{
+            return Response.ok("{\"message\":\"NotAccepted\"").build();
+        }
 
-        String debugString="";
-        Connection conn = sqliteConnection.connect();
+        String urlConnection = context.getInitParameter("DatabaseUrl");
+        Connection conn = sqliteConnection.connect(urlConnection);
+
 
         JSONArray geoJsonResponse = new JSONArray();
         JSONObject response= new JSONObject();
 
 
 
-        String idUser = crc.getProperty("idUtente").toString();
 
         String selectUserTravelsByDate = "SELECT * FROM Viaggi WHERE dataViaggio = \""+data+"\" AND idUtente= "+idUser+";";
 
@@ -65,10 +80,22 @@ public class RestServlet {
     }
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addTravel(@QueryParam("data") String data,@Context ContainerRequestContext crc,String requestBody) throws SQLException {
-        Connection conn = sqliteConnection.connect();
+    public Response addTravel(@QueryParam("data") String data,@HeaderParam("Authorization") String auth,String requestBody) throws SQLException {
 
-        String idUser = crc.getProperty("idUtente").toString();
+        String idUser="";
+        if(auth != null && auth.split(" ")[0].equals("Bearer")){
+            idUser = checkJwt(auth.split(" ")[1]);
+            if(idUser == null){
+                return Response.ok("{\"message\":\"NotAccepted\"").build();
+            }
+        }else{
+            return Response.ok("{\"message\":\"NotAccepted\"").build();
+        }
+
+        String urlConnection = context.getInitParameter("DatabaseUrl");
+        Connection conn = sqliteConnection.connect(urlConnection);
+
+
 
         JSONObject jsonRequest=new JSONObject(requestBody);
         String id = jsonRequest.getString("id");
@@ -80,8 +107,7 @@ public class RestServlet {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-        conn.close();
-        conn = sqliteConnection.connect();
+
         String querySelect = "SELECT idViaggio,GeoJsonData FROM Viaggi WHERE idViaggio="+id+";";
         try (Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(querySelect);
@@ -98,8 +124,21 @@ public class RestServlet {
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteTravel(String requestBody) throws SQLException {
-        Connection conn = sqliteConnection.connect();
+    public Response deleteTravel(String requestBody,@HeaderParam("Authorization") String auth) throws SQLException {
+        String idUser="";
+        if(auth != null && auth.split(" ")[0].equals("Bearer")) {
+            idUser = checkJwt(auth.split(" ")[1]);
+            if(idUser == null){
+                return Response.ok("{\"message\":\"NotAccepted\"").build();
+            }
+        }else{
+            return Response.ok("{\"message\":\"NotAccepted\"").build();
+        }
+
+
+        String urlConnection = context.getInitParameter("DatabaseUrl");
+        Connection conn = sqliteConnection.connect(urlConnection);
+
 
         JSONObject jsonRequest=new JSONObject(requestBody);
         String idViaggio = jsonRequest.getString("id");
@@ -124,8 +163,21 @@ public class RestServlet {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getTravelById(@PathParam("id") int idViaggio) throws SQLException {
-        Connection conn = sqliteConnection.connect();
+    public Response getTravelById(@PathParam("id") int idViaggio,@HeaderParam("Authorization") String auth) throws SQLException {
+        String idUser="";
+        if(auth != null && auth.split(" ")[0].equals("Bearer")) {
+            idUser = checkJwt(auth.split(" ")[1]);
+            if(idUser == null){
+                return Response.ok("{\"message\":\"NotAccepted\"").build();
+            }
+        }else{
+            return Response.ok("{\"message\":\"NotAccepted\"").build();
+        }
+
+
+        String urlConnection = context.getInitParameter("DatabaseUrl");
+        Connection conn = sqliteConnection.connect(urlConnection);
+
         JSONObject jsonObject=null;
 
 
@@ -147,8 +199,20 @@ public class RestServlet {
     @PUT
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateTravelById(@PathParam("id") int idViaggio,String geoJson) throws SQLException {
-        Connection conn = sqliteConnection.connect();
+    public Response updateTravelById(@PathParam("id") int idViaggio,String geoJson,@HeaderParam("Authorization") String auth) throws SQLException {
+        String idUser="";
+        if(auth != null && auth.split(" ")[0].equals("Bearer")) {
+            idUser = checkJwt(auth.split(" ")[1]);
+            if(idUser == null){
+                return Response.ok("{\"message\":\"NotAccepted\"").build();
+            }
+        }else{
+            return Response.ok("{\"message\":\"NotAccepted\"").build();
+        }
+
+        String urlConnection = context.getInitParameter("DatabaseUrl");
+        Connection conn = sqliteConnection.connect(urlConnection);
+
         JSONObject jsonResponse=null;
         String updateViaggio = "UPDATE Viaggi SET GeoJsonData ='"+geoJson+"' WHERE idViaggio="+idViaggio+";";
         String selectViaggioByidViaggio = "SELECT IdViaggio,GeoJsonData FROM Viaggi WHERE IdViaggio="+idViaggio+";";
@@ -171,4 +235,42 @@ public class RestServlet {
         conn.close();
         return Response.ok(jsonResponse.toString()).build();
     }
+
+
+    public String checkJwt(String jwt) {
+        String urlConnection = context.getInitParameter("DatabaseUrl");
+
+        Connection conn = sqliteConnection.connect(urlConnection);
+
+        //This line will throw an exception if it is not a signed JWS (as expected)
+        Claims claims = Jwts.parser()
+                .setSigningKey(DatatypeConverter.parseBase64Binary(SECRET_KEY))
+                .parseClaimsJws(jwt).getBody();
+
+        if(!claims.getIssuer().equals("MatteoBille")) return null;
+        if(claims.get("idUtente")==null) return null;
+
+        String queryVerificaId = "SELECT NomeUtente FROM Utenti WHERE idUtente=\""+claims.get("idUtente")+"\";";
+
+
+        try (Statement stmt = conn.createStatement()) {
+
+            ResultSet rs = stmt.executeQuery(queryVerificaId);
+            if (rs.next() != false) {
+                if(rs.getString("NomeUtente").equals(claims.getSubject())){
+                    return claims.get("idUtente").toString();
+                }
+
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        try {
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

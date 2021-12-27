@@ -6,6 +6,7 @@ import io.jsonwebtoken.impl.TextCodec;
 import it.units.travelshandler.sqliteConnection;
 import org.json.JSONObject;
 
+import javax.servlet.ServletContext;
 import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
@@ -20,11 +21,13 @@ import java.util.List;
 public class SignUpRestServlet {
 
     private static final String SECRET_KEY = "Yn2kjibddFAWtnPJ2AFlL8WXmohJMCvigQggaEypa5E=";
+    @Context ServletContext context;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response SetNewUser(@Context ContainerRequestContext ctx) throws SQLException {
-        Connection conn = sqliteConnection.connect();
+        String urlConnection = context.getInitParameter("DatabaseUrl");
+        Connection conn = sqliteConnection.connect(urlConnection);
 
         if (ctx.getHeaders().get("Authorization") != null) {
             List auth = ctx.getHeaders().get("Authorization");
