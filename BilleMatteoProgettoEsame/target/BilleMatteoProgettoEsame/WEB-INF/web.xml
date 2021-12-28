@@ -50,8 +50,9 @@
     <url-pattern>/apiLogin/*</url-pattern>
   </servlet-mapping>
 
+<!-- Modificare il valore del parametro indicando il path assoluto della posizione del database nel PC-->
   <context-param>
     <param-name>DatabaseUrl</param-name>
-    <param-value>C:\\Users\\Billo\\Desktop\\DbProgrammazioneWeb.db</param-value>
+    <param-value>C:\\Users\\Billo\\Documents\\Matteo\\Universita\\A.A.21-22\\DbProgrammazioneWeb.db</param-value>
   </context-param>
 </web-app>

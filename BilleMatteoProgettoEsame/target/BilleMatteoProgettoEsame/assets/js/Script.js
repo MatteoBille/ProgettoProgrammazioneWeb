@@ -89,7 +89,7 @@ let ElencoViaggi = new Vue({
         latlngMax: [47.028253, 4.819799],
         latlngMin: [36.561942, 19.391921],
       };
-      date = this.reverseData(this.date);
+      date = this.changeDateFormatting(this.date);
       let header = {
         "Content-Type": "application/json",
       };
@@ -182,7 +182,7 @@ let ElencoViaggi = new Vue({
       this.disegnaViaggio();
     },
     retrieveData: function () {
-      let date = this.reverseData(this.date);
+      let date = this.changeDateFormatting(this.date);
       let header = {};
       header = this.setAuthHeader(header);
       let response = fetch(
@@ -216,22 +216,20 @@ let ElencoViaggi = new Vue({
       var mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
       var yyyy = today.getFullYear();
 
-      today = dd + "/" + mm + "/" + yyyy;
+      today = yyyy + "-" + mm + "-" + dd;
       /*********************/
 
-      this.date = today;
+      document.getElementById("data-viaggi").value = today;
     },
-    reverseData: function (date) {
-      let datePieces = date.split("/");
-      let dd = datePieces[0];
+    changeDateFormatting: function (date) {
+      console.log(date);
+      date = date.replace(/-/g,"/");
+    
 
-      let mm = datePieces[1];
-
-      let yyyy = datePieces[2];
-
-      return yyyy + "/" + mm + "/" + dd;
+      return date;
     },
     setNewDate: function (newDate) {
+      this.date=document.getElementById("data-viaggi").value;
       this.pulisciMappa();
       this.retrieveData();
     },
@@ -242,14 +240,14 @@ let ElencoViaggi = new Vue({
       return header;
     },
     changeDay: function (nday) {
-      let datePieces = this.date.split("/");
-      let dd = datePieces[0];
+      
+      if(nday===1){
+        document.getElementById("data-viaggi").stepUp(1);
+      }else{
+        document.getElementById("data-viaggi").stepDown(1);
+      }
 
-      let mm = datePieces[1];
-
-      let yyyy = datePieces[2];
-
-      this.date = parseInt(dd) + parseInt(nday) + "/" + mm + "/" + yyyy;
+      this.date=document.getElementById("data-viaggi").value;
       this.pulisciMappa();
       this.retrieveData();
     },
@@ -282,6 +280,7 @@ let ElencoViaggi = new Vue({
   },
   mounted: function () {
     this.setThisDay();
+    
   },
 });
 
@@ -898,19 +897,19 @@ let SignUpLoginButtons = new Vue({
     showLoginForm: function () {
       document.querySelector("#login").style.display = "block";
       document.querySelector("#loginform").style.display = "block";
-      document.querySelector("#right-side").style.display = "block";
+      document.querySelector("#right-side-container").style.display = "block";
       document.querySelector("#signupform").style.display = "none";
       
     },
     showSignUpForm: function () {
       document.querySelector("#login").style.display = "block";
       document.querySelector("#signupform").style.display = "block";
-      document.querySelector("#right-side").style.display = "block";
+      document.querySelector("#right-side-container").style.display = "block";
       document.querySelector("#loginform").style.display = "none";
     },
     logout: function () {
       document.querySelector("#signUpLogin").style.display = "block";
-      document.querySelector("#right-side").style.display = "none";
+      document.querySelector("#right-side-container").style.display = "none";
       document.querySelector("#logout").style.display = "none";
       jwtToken="";
       this.pulisciCerchi();
@@ -922,7 +921,7 @@ let SignUpLoginButtons = new Vue({
     },
     nascondiLogout:function(){
       document.querySelector("#logout").style.display = "none";
-      document.querySelector("#right-side").style.display = "none";
+      document.querySelector("#right-side-container").style.display = "none";
     },
     pulisciCerchi:function(){
       if (map.hasLayer(circles)) {
@@ -1056,3 +1055,4 @@ let setAuthHeader = function (header) {
   }
   return header;
 };
+
