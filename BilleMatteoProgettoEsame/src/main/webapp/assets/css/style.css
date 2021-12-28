@@ -116,10 +116,10 @@ footer{
 .elenco-viaggi, .elenco-tappe{
     height:auto;
 }
-
+/*
 p , button{
     font-size: 1vw;
-}
+}*/
 
 #elenco-viaggio-viaggio-titolo{
     white-space: normal;
@@ -136,11 +136,25 @@ p , button{
 }
 
 .btn{
-    background-color:#1B2432;;
-    border-color:#0e131b;;
+    background-color:#1B2432;
+    border-color:#0e131b;
 }
 
 p{
     padding:0px;
     margin:0px;
+}
+
+@media (min-width: 992px){
+    #general-container {
+        overflow-y: hidden;
+    }
+    .left-side{
+        height: 100% !important;
+        max-height:100% !important;
+    }
+    #right-side-container{
+        height: 100% !important;
+        max-height:100% !important;
+    }
 }
