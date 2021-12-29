@@ -23,10 +23,10 @@ div.col>a>img{
 }
 
 .side-bar-infos{
-    height:6%;
+    height:4%;
 }
 .side-bar-infos + .side-bar-content{
-    height:74%;
+    height:76%;
 }
 
 .side-bar-travel{
@@ -145,6 +145,10 @@ p{
     margin:0px;
 }
 
+#logout{
+    display: none;
+}
+
 @media (min-width: 992px){
     #general-container {
         overflow-y: hidden;
@@ -156,5 +160,32 @@ p{
     #right-side-container{
         height: 100% !important;
         max-height:100% !important;
+    }
+}
+
+
+@media (min-width: 1400px){
+    header{
+        height: 7%;
+        background-color: #121420;
+    }
+
+    main{
+    height: 89%;
+    }
+
+    footer{
+        height:4%;
+        background-color: #121420;
+    }
+
+    .side-bar-title{
+        height:7%;
+    }
+    .side-bar-content{
+        height: 86%;
+    }
+    .side-bar-footer{
+        height:7%
     }
 }
