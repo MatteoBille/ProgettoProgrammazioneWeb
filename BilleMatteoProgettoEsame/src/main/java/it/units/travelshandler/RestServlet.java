@@ -2,16 +2,16 @@ package it.units.travelshandler;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.impl.TextCodec;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.*;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.time.Instant;
 import javax.servlet.ServletContext;
 import javax.xml.bind.DatatypeConverter;
 
@@ -28,10 +28,10 @@ public class RestServlet {
         if(auth != null && auth.split(" ")[0].equals("Bearer")){
             idUser = checkJwt(auth.split(" ")[1]);
             if(idUser == null){
-                return Response.ok("{\"message\":\"NotAccepted\"").build();
+                return Response.ok("{\"message\":\"NotAccepted\"} utente non trovato").build();
             }
         }else{
-            return Response.ok("{\"message\":\"NotAccepted\"").build();
+            return Response.ok("{\"message\":\"NotAccepted\"}").build();
         }
 
         String urlConnection = context.getInitParameter("DatabaseUrl");
@@ -75,7 +75,8 @@ public class RestServlet {
             throwables.printStackTrace();
         }
         conn.close();
-
+        String newToken= SetToken(auth.split(" ")[1],Integer.parseInt(idUser));
+        response.put("jwtToken",newToken);
         return Response.ok(response.toString().replaceAll("\\\\","")).build();
     }
     @POST
@@ -86,10 +87,10 @@ public class RestServlet {
         if(auth != null && auth.split(" ")[0].equals("Bearer")){
             idUser = checkJwt(auth.split(" ")[1]);
             if(idUser == null){
-                return Response.ok("{\"message\":\"NotAccepted\"").build();
+                return Response.ok("{\"message\":\"NotAccepted\"}").build();
             }
         }else{
-            return Response.ok("{\"message\":\"NotAccepted\"").build();
+            return Response.ok("{\"message\":\"NotAccepted\"}").build();
         }
 
         String urlConnection = context.getInitParameter("DatabaseUrl");
@@ -119,6 +120,8 @@ public class RestServlet {
         }
 
         conn.close();
+        String newToken= SetToken(auth.split(" ")[1],Integer.parseInt(idUser));
+        jsonResponse.put("jwtToken",newToken);
         return Response.ok(jsonResponse.toString()).build();
     }
 
@@ -129,10 +132,10 @@ public class RestServlet {
         if(auth != null && auth.split(" ")[0].equals("Bearer")) {
             idUser = checkJwt(auth.split(" ")[1]);
             if(idUser == null){
-                return Response.ok("{\"message\":\"NotAccepted\"").build();
+                return Response.ok("{\"message\":\"NotAccepted\"}").build();
             }
         }else{
-            return Response.ok("{\"message\":\"NotAccepted\"").build();
+            return Response.ok("{\"message\":\"NotAccepted\"}").build();
         }
 
 
@@ -156,7 +159,8 @@ public class RestServlet {
         jsonResponse.put("deleted","ok");
 
         conn.close();
-
+        String newToken= SetToken(auth.split(" ")[1],Integer.parseInt(idUser));
+        jsonResponse.put("jwtToken",newToken);
         return Response.ok(jsonResponse.toString()).build();
     }
 
@@ -168,32 +172,34 @@ public class RestServlet {
         if(auth != null && auth.split(" ")[0].equals("Bearer")) {
             idUser = checkJwt(auth.split(" ")[1]);
             if(idUser == null){
-                return Response.ok("{\"message\":\"NotAccepted\"").build();
+                return Response.ok("{\"message\":\"NotAccepted\"}").build();
             }
         }else{
-            return Response.ok("{\"message\":\"NotAccepted\"").build();
+            return Response.ok("{\"message\":\"NotAccepted\"}").build();
         }
 
 
         String urlConnection = context.getInitParameter("DatabaseUrl");
         Connection conn = sqliteConnection.connect(urlConnection);
 
-        JSONObject jsonObject=null;
+        JSONObject jsonResponse=null;
 
 
         String selectViaggiByIdViaggio = "SELECT IdViaggio,GeoJsonData FROM Viaggi WHERE idViaggio="+idViaggio+";";
 
         try (Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(selectViaggiByIdViaggio);
-            jsonObject= new JSONObject(rs.getString("GeoJsonData"));
-            jsonObject.put("id",Integer.toString(rs.getInt("idViaggio")));
+            jsonResponse= new JSONObject(rs.getString("GeoJsonData"));
+            jsonResponse.put("id",Integer.toString(rs.getInt("idViaggio")));
 
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
         conn.close();
-        return Response.ok(jsonObject.toString()).build();
+        String newToken= SetToken(auth.split(" ")[1],Integer.parseInt(idUser));
+        jsonResponse.put("jwtToken",newToken);
+        return Response.ok(jsonResponse.toString()).build();
     }
 
     @PUT
@@ -204,10 +210,10 @@ public class RestServlet {
         if(auth != null && auth.split(" ")[0].equals("Bearer")) {
             idUser = checkJwt(auth.split(" ")[1]);
             if(idUser == null){
-                return Response.ok("{\"message\":\"NotAccepted\"").build();
+                return Response.ok("{\"message\":\"NotAccepted\"}").build();
             }
         }else{
-            return Response.ok("{\"message\":\"NotAccepted\"").build();
+            return Response.ok("{\"message\":\"NotAccepted\"}").build();
         }
 
         String urlConnection = context.getInitParameter("DatabaseUrl");
@@ -233,6 +239,8 @@ public class RestServlet {
             throwables.printStackTrace();
         }
         conn.close();
+        String newToken= SetToken(auth.split(" ")[1],Integer.parseInt(idUser));
+        jsonResponse.put("jwtToken",newToken);
         return Response.ok(jsonResponse.toString()).build();
     }
 
@@ -241,14 +249,15 @@ public class RestServlet {
         String urlConnection = context.getInitParameter("DatabaseUrl");
 
         Connection conn = sqliteConnection.connect(urlConnection);
-
+        Claims claims=null;
+        try {
         //This line will throw an exception if it is not a signed JWS (as expected)
-        Claims claims = Jwts.parser()
+         claims = Jwts.parser()
                 .setSigningKey(DatatypeConverter.parseBase64Binary(SECRET_KEY))
                 .parseClaimsJws(jwt).getBody();
-
-        if(!claims.getIssuer().equals("MatteoBille")) return null;
-        if(claims.get("idUtente")==null) return null;
+        } catch (Exception e) {
+           return null;
+        }
 
         String queryVerificaId = "SELECT NomeUtente FROM Utenti WHERE idUtente=\""+claims.get("idUtente")+"\";";
 
@@ -260,7 +269,6 @@ public class RestServlet {
                 if(rs.getString("NomeUtente").equals(claims.getSubject())){
                     return claims.get("idUtente").toString();
                 }
-
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -271,6 +279,32 @@ public class RestServlet {
             e.printStackTrace();
         }
         return null;
+    }
+
+
+
+    public String SetToken(String jwtOld, int id) {
+
+
+        Claims claims = Jwts.parser()
+                .setSigningKey(DatatypeConverter.parseBase64Binary(SECRET_KEY))
+                .parseClaimsJws(jwtOld).getBody();
+
+        long nowTime = Instant.now().getEpochSecond();
+        long ExpirationTime = nowTime + 900;
+        String jwt = Jwts.builder()
+                .setIssuer("MatteoBille")
+                .setSubject(claims.getSubject())
+                .claim("idUtente", id)
+                .claim("scope", "user")
+                .setIssuedAt(Date.from(Instant.ofEpochSecond(nowTime)))
+                .setExpiration(Date.from(Instant.ofEpochSecond(ExpirationTime)))
+                .signWith(
+                        SignatureAlgorithm.HS256,
+                        TextCodec.BASE64.decode(SECRET_KEY)
+                )
+                .compact();
+        return jwt;
     }
 
 }

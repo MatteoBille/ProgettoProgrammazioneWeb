@@ -1,10 +1,5 @@
-/*
-   Return function which will be called when `hide()` method is triggered,
-   it must necessarily call the `done()` function
-    to complete hiding process 
-  */
-
 let jwtToken = "";
+
 let map = L.map("map").setView([45.624029, 13.789859], 13);
 let geoJsonTemplate = {
   features: [
@@ -94,6 +89,7 @@ let ElencoViaggi = new Vue({
       })
         .then((response) => response.json())
         .then((data) => {
+          jwtToken=data.jwtToken;
           this.viaggi.push(data);
           this.modificaTappe(event, data.id);
         });
@@ -107,7 +103,10 @@ let ElencoViaggi = new Vue({
         method: "DELETE",
         headers: header,
         body: JSON.stringify({ id: id }),
-      }).then(() => {
+      })
+      .then((response) => response.json())
+      .then(()=>{
+        jwtToken=data.jwtToken;
         this.pulisciMappa();
         this.retrieveData();
       });
@@ -175,6 +174,7 @@ let ElencoViaggi = new Vue({
         .then((response) => response.json())
         .then((data) => {
           if (data.message !== "NotAccepted") {
+            jwtToken=data.jwtToken;
             this.viaggi = data.geoJson;
             this.nextId = data.id + 1;
             this.totalCorners = cornersItalia;
@@ -294,6 +294,7 @@ let ElencoTappe = new Vue({
         .then((response) => response.json())
         .then((data) => {
           if (data.message !== "NotAccepted") {
+            jwtToken=data.jwtToken;
             this.viaggio = data;
             this.mezzo = data.mezzo;
             this.nomeViaggio = data.nome;
@@ -483,9 +484,11 @@ let ModificaTappe = new Vue({
         .then((response) => response.json())
         .then((data) => {
           if (data.message !== "NotAccepted") {
+            jwtToken=data.jwtToken;
             this.viaggio = data;
             this.nomeViaggio = data.nome;
             this.mezzo = data.mezzo;
+
             this.setTappe();
             this.setCorners();
             this.disegnaViaggio();
@@ -526,21 +529,20 @@ let ModificaTappe = new Vue({
         method: "PUT",
         headers: header,
         body: JSON.stringify(this.viaggio),
+      }).then((response)=>response.json())
+      .then((data)=>{
+        jwtToken=data.jwtToken;
+        this.modificato = false;
+        this.tornaAVisualizzazione();
       });
-
-      this.modificato = false;
-      this.pulisciCerchi();
-      this.removeMapListener();
-      this.pulisciMappa();
-      this.tornaAVisualizzazione();
-      ElencoTappe.retrieveData(this.id);
     },
     modificaPunto: function (event, id) {
       let container = document.querySelector(`#container-tappa-${id}`);
       container.style.display = "none";
       let modifierContainer = document.querySelector(`#container-modifica-tappa-${id}`);
       modifierContainer.style.display = "flex";
-      let tappaContainerGeneral = document.querySelector(`#tappa-${id}`);
+      console.log("modifica punto");
+      console.log(this.viaggio);
     },
     indietroSenzaSalvarePunto(event, id) {
       for (let i = 0; i < this.tappe.length; ++i) {
@@ -561,17 +563,23 @@ let ModificaTappe = new Vue({
       }
     },
     cancellaPunto: function (event, id) {
+      console.log(this.viaggio);
       this.modificato = true;
       this.tappe.splice(id, 1);
       for (let i = 0; i < this.tappe.length; ++i) {
         this.tappe[i].idTappa = i;
       }
       for (let i = 1; i < this.viaggio.features.length; i++) {
+        if (this.viaggio.features[i].id === id && this.viaggio.features[i].geometry.type === "Point") {
+          this.viaggio.features.splice(i,1);
+        }
+
         if (this.viaggio.features[i].id > id && this.viaggio.features[i].geometry.type === "Point") {
           this.viaggio.features[i].id = this.viaggio.features[i].id - 1;
 
         }
       }
+      this.$forceUpdate();
       this.aggiornaTutteLeCoordinateViaggio();
       this.pulisciCerchi();
       this.pulisciMappa();
@@ -608,8 +616,13 @@ let ModificaTappe = new Vue({
       let lng = document.getElementById(`lng-tappa-${id}`).value;
       let check = document.getElementById(`check-tappa-${id}`).checked;
       let checkText = document.getElementById(`check-text-tappa-${id}`).value;
-
+      
       console.log(lat+"  "+lng);
+      if(lat==="Nan" || lng==="Nan"){
+        console.log("cancella punto");
+        this.cancellaPunto(null,id);
+        return undefined;
+      }
 
       let container = document.querySelector(`#container-tappa-${id}`);
       container.style.display = "flex";
@@ -628,7 +641,6 @@ let ModificaTappe = new Vue({
         };
 
         if (tappa.idTappa === id) {
-          console.log(id);
 
           tappa.coordinates[0] = parseFloat(lat);
           tappa.coordinates[1] = parseFloat(lng);
@@ -642,6 +654,7 @@ let ModificaTappe = new Vue({
             }
           }
 
+          console.log(tappa);
           if (tappa.check === true) {
             if (exist === false) {
               puntoImportante.id = id;
@@ -658,14 +671,12 @@ let ModificaTappe = new Vue({
               }
             }
           }
-          console.log( this.viaggio.features[0]);
-          this.viaggio.features[0].geometry.coordinates.push([,]);
-          console.log(tappa)
+
+          //this.viaggio.features[0].geometry.coordinates.push([,]);
           this.viaggio.features[0].geometry.coordinates[id][0] = tappa.coordinates[1];
           this.viaggio.features[0].geometry.coordinates[id][1] = tappa.coordinates[0];
         }
       });
-
 
       this.$forceUpdate();
       this.pulisciCerchi();
@@ -700,6 +711,7 @@ let ModificaTappe = new Vue({
         this.viaggio.features[0].geometry.coordinates.push([tappa.coordinates[1], tappa.coordinates[0]]);
       });
       this.setCorners();
+      this.pulisciCerchi();
       this.pulisciMappa();
       this.disegnaViaggio();
     },
@@ -737,34 +749,14 @@ let ModificaTappe = new Vue({
       }
       return header;
     },
-    /*modificaNomeViaggio: function () {
-      document.querySelector("#nome-viaggio").style.display = "none";
-      document.querySelector("#modifica-nome").style.display = "none";
-      document.querySelector("#cambia-nome").style.display = "flex";
-      document.querySelector("#salva-nome").style.display = "block";
-    },*/
     salvaNomeViaggio: function () {
       this.nomeViaggio = document.querySelector("#nuovo-nome-viaggio").value;
       this.viaggio.nome = this.nomeViaggio;
     },
-    /*modificaMezzo: function () {
-      document.querySelector("#mezzo-attuale").style.display = "none";
-      document.querySelector("#modifica-mezzo").style.display = "none";
-      document.querySelector("#nuovo-mezzo").style.display = "flex";
-      document.querySelector("#salva-mezzo").style.display = "block";
-    },*/
     salvaModificaMezzo: function () {
       this.mezzo = document.querySelector("#nuovo-mezzo-viaggio").value;
       this.viaggio.mezzo = this.mezzo;
     },
-    /*nascondiModificaNomeEModificaMezzo: function () {
-      document.querySelector("#cambia-nome").style.display = "none";
-      document.querySelector("#salva-nome").style.display = "none";
-      document.querySelector("#nome-viaggio").style.display = "flex";
-      document.querySelector("#modifica-nome").style.display = "block";
-      document.querySelector("#nuovo-mezzo").style.display = "none";
-      document.querySelector("#salva-mezzo").style.display = "none";
-    },*/
     EvidenziaTappa: function (id) {
       this.pulisciCerchi();
 

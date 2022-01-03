@@ -1,10 +1,5 @@
-/*
-   Return function which will be called when `hide()` method is triggered,
-   it must necessarily call the `done()` function
-    to complete hiding process 
-  */
-
 let jwtToken = "";
+
 let map = L.map("map").setView([45.624029, 13.789859], 13);
 let geoJsonTemplate = {
   features: [
@@ -24,19 +19,14 @@ let geoJsonTemplate = {
   type: "FeatureCollection",
 };
 
-L.tileLayer(
-  "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
-  {
-    attribution:
-      'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-    //maxZoom: 18,
-    id: "mapbox/streets-v11",
-    //tileSize: 512,
-    //zoomOffset: -1,
-    accessToken:
-      "pk.eyJ1IjoiYmlsbG85NyIsImEiOiJja3d3Y2V5MGEwMjc5MnZwOGFtdjFxMnV0In0.5Fa8yODvSDsZ1b73O-CwRQ",
-  }
-).addTo(map);
+L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+  attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+  //maxZoom: 18,
+  id: "mapbox/streets-v11",
+  //tileSize: 512,
+  //zoomOffset: -1,
+  accessToken: "pk.eyJ1IjoiYmlsbG85NyIsImEiOiJja3d3Y2V5MGEwMjc5MnZwOGFtdjFxMnV0In0.5Fa8yODvSDsZ1b73O-CwRQ",
+}).addTo(map);
 
 let geoJsonLayer = L.geoJSON();
 let circles = L.featureGroup();
@@ -57,9 +47,7 @@ let ElencoViaggi = new Vue({
       event.stopPropagation();
       divViaggi = document.getElementById("elenco-viaggi-giornata");
       divViaggi.style.display = "none";
-      divModificaTappe = document.getElementById(
-        "modifica-elenco-tappe-viaggio"
-      );
+      divModificaTappe = document.getElementById("modifica-elenco-tappe-viaggio");
       divModificaTappe.style.display = "none";
       divTappe = document.getElementById("visualizza-elenco-tappe-viaggio");
       divTappe.style.display = "block";
@@ -94,16 +82,14 @@ let ElencoViaggi = new Vue({
         "Content-Type": "application/json",
       };
       header = this.setAuthHeader(header);
-      let response = fetch(
-        `http://localhost:8080/BilleMatteoProgettoEsame/apiViaggi/viaggi?data=${date}`,
-        {
-          method: "POST",
-          headers: header,
-          body: JSON.stringify(geoJsonNuovoViaggio),
-        }
-      )
+      let response = fetch(`apiViaggi/viaggi?data=${date}`, {
+        method: "POST",
+        headers: header,
+        body: JSON.stringify(geoJsonNuovoViaggio),
+      })
         .then((response) => response.json())
         .then((data) => {
+          jwtToken=data.jwtToken;
           this.viaggi.push(data);
           this.modificaTappe(event, data.id);
         });
@@ -113,14 +99,14 @@ let ElencoViaggi = new Vue({
         "Content-Type": "application/json",
       };
       header = this.setAuthHeader(header);
-      let response = fetch(
-        "http://localhost:8080/BilleMatteoProgettoEsame/apiViaggi/viaggi",
-        {
-          method: "DELETE",
-          headers: header,
-          body: JSON.stringify({ id: id }),
-        }
-      ).then(() => {
+      let response = fetch("apiViaggi/viaggi", {
+        method: "DELETE",
+        headers: header,
+        body: JSON.stringify({ id: id }),
+      })
+      .then((response) => response.json())
+      .then(()=>{
+        jwtToken=data.jwtToken;
         this.pulisciMappa();
         this.retrieveData();
       });
@@ -142,8 +128,7 @@ let ElencoViaggi = new Vue({
             return { color: "#EB1F00", weight: 5 };
         }
       };
-
-      if (this.viaggi.length !== 0) {
+      if (this.viaggi.length !== 0 ) {
         map.fitBounds([this.corners.latlngMax, this.corners.latlngMin]);
       } else {
         map.fitBounds([cornersItalia.latlngMax, cornersItalia.latlngMIn]);
@@ -152,10 +137,7 @@ let ElencoViaggi = new Vue({
       geoJsonLayer.addData(this.viaggi).addTo(map);
 
       geoJsonLayer.eachLayer(function (layer) {
-        if (
-          layer.feature.geometry.coordinates.length != 0 &&
-          layer.feature.geometry.type === "LineString"
-        ) {
+        if (layer.feature.geometry.coordinates.length != 0 && layer.feature.geometry.type === "LineString") {
           layer.setStyle(myStyle(layer.feature));
         }
       });
@@ -185,16 +167,14 @@ let ElencoViaggi = new Vue({
       let date = this.changeDateFormatting(this.date);
       let header = {};
       header = this.setAuthHeader(header);
-      let response = fetch(
-        `http://localhost:8080/BilleMatteoProgettoEsame/apiViaggi/viaggi?data=${date}`,
-        {
-          method: "GET",
-          headers: header,
-        }
-      )
+      let response = fetch(`apiViaggi/viaggi?data=${date}`, {
+        method: "GET",
+        headers: header,
+      })
         .then((response) => response.json())
         .then((data) => {
           if (data.message !== "NotAccepted") {
+            jwtToken=data.jwtToken;
             this.viaggi = data.geoJson;
             this.nextId = data.id + 1;
             this.totalCorners = cornersItalia;
@@ -218,18 +198,16 @@ let ElencoViaggi = new Vue({
 
       today = yyyy + "-" + mm + "-" + dd;
       /*********************/
-
       document.getElementById("data-viaggi").value = today;
+      this.date = document.getElementById("data-viaggi").value;
     },
     changeDateFormatting: function (date) {
-      console.log(date);
-      date = date.replace(/-/g,"/");
-    
+      date = date.replace(/-/g, "/");
 
       return date;
     },
     setNewDate: function (newDate) {
-      this.date=document.getElementById("data-viaggi").value;
+      this.date = document.getElementById("data-viaggi").value;
       this.pulisciMappa();
       this.retrieveData();
     },
@@ -240,14 +218,13 @@ let ElencoViaggi = new Vue({
       return header;
     },
     changeDay: function (nday) {
-      
-      if(nday===1){
+      if (nday === 1) {
         document.getElementById("data-viaggi").stepUp(1);
-      }else{
+      } else {
         document.getElementById("data-viaggi").stepDown(1);
       }
 
-      this.date=document.getElementById("data-viaggi").value;
+      this.date = document.getElementById("data-viaggi").value;
       this.pulisciMappa();
       this.retrieveData();
     },
@@ -280,7 +257,6 @@ let ElencoViaggi = new Vue({
   },
   mounted: function () {
     this.setThisDay();
-    
   },
 });
 
@@ -311,16 +287,14 @@ let ElencoTappe = new Vue({
       this.id = id;
       let header = {};
       header = this.setAuthHeader(header);
-      let response = fetch(
-        `http://localhost:8080/BilleMatteoProgettoEsame/apiViaggi/viaggi/${this.id}`,
-        {
-          method: "GET",
-          headers: header,
-        }
-      )
+      let response = fetch(`apiViaggi/viaggi/${this.id}`, {
+        method: "GET",
+        headers: header,
+      })
         .then((response) => response.json())
         .then((data) => {
           if (data.message !== "NotAccepted") {
+            jwtToken=data.jwtToken;
             this.viaggio = data;
             this.mezzo = data.mezzo;
             this.nomeViaggio = data.nome;
@@ -334,42 +308,38 @@ let ElencoTappe = new Vue({
       geoJsonLayer = L.geoJSON();
       var myStyle = { color: "#1766EB", weight: 3 };
 
-      map.fitBounds([
-        this.viaggio.corners.latlngMax,
-        this.viaggio.corners.latlngMin,
-      ]);
+
+      if (this.tappe.length !== 0 ) {
+        map.fitBounds([this.corners.latlngMax, this.corners.latlngMin]);
+      } else {
+        map.fitBounds([cornersItalia.latlngMax, cornersItalia.latlngMIn]);
+      }
+      map.fitBounds([this.viaggio.corners.latlngMax, this.viaggio.corners.latlngMin]);
       geoJsonLayer.addData(this.viaggio).addTo(map);
       geoJsonLayer.eachLayer(function (layer) {
-        if (
-          layer.feature.geometry.coordinates.length != 0 &&
-          layer.feature.geometry.type === "LineString"
-        ) {
+        if (layer.feature.geometry.coordinates.length != 0 && layer.feature.geometry.type === "LineString") {
           layer.setStyle(myStyle);
         }
       });
     },
     setTappe: function () {
       this.tappe = [];
-      for ( let i = 0; i < this.viaggio.features[0].geometry.coordinates.length; i++ ) {
-
-        let checkText="";
-        for(let j=1;j<this.viaggio.features.length;j++){
-          if(this.viaggio.features[j].id===i){
-            checkText=this.viaggio.features[j].properties.text;
+      for (let i = 0; i < this.viaggio.features[0].geometry.coordinates.length; i++) {
+        let checkText = "";
+        for (let j = 1; j < this.viaggio.features.length; j++) {
+          if (this.viaggio.features[j].id === i) {
+            checkText = this.viaggio.features[j].properties.text;
           }
         }
 
         this.tappe.push({
           idTappa: i,
-          coordinates: [
-            this.viaggio.features[0].geometry.coordinates[i][1],
-            this.viaggio.features[0].geometry.coordinates[i][0],
-          ],
-          checkText:checkText
+          coordinates: [this.viaggio.features[0].geometry.coordinates[i][1], this.viaggio.features[0].geometry.coordinates[i][0]],
+          checkText: checkText,
         });
       }
     },
-    pulisciCerchi:function(){
+    pulisciCerchi: function () {
       if (map.hasLayer(circles)) {
         map.removeLayer(circles);
         circles = L.featureGroup();
@@ -392,17 +362,14 @@ let ElencoTappe = new Vue({
 
       this.tappe.forEach(function (tappa) {
         if (tappa.idTappa === id) {
-          let circle = L.circleMarker(
-            [tappa.coordinates[0], tappa.coordinates[1]],
-            {
-              radius: 10,
-              color: "red",
-              weight: 0.5,
-              opacity: 1,
-              fillColor: "red",
-              fillOpacity: 1,
-            }
-          ).addTo(circles);
+          let circle = L.circleMarker([tappa.coordinates[0], tappa.coordinates[1]], {
+            radius: 10,
+            color: "red",
+            weight: 0.5,
+            opacity: 1,
+            fillColor: "red",
+            fillOpacity: 1,
+          }).addTo(circles);
           map.addLayer(circles);
         }
       });
@@ -451,6 +418,7 @@ let ElencoTappe = new Vue({
       divTappe = document.getElementById("modifica-elenco-tappe-viaggio");
       divTappe.style.display = "block";
       this.pulisciMappa();
+      ModificaTappe.setMapListener();
       ModificaTappe.retrieveData(this.id);
     },
   },
@@ -469,43 +437,58 @@ let ModificaTappe = new Vue({
   data: {
     viaggio: [],
     tappe: [],
+    idUltimaTappa:0,
     nomeViaggio: "",
     corners: {},
     mezzo: "",
     id: "",
+    modificato: false,
   },
   methods: {
     tornaAVisualizzazione: function () {
-      divTappe = document.getElementById("modifica-elenco-tappe-viaggio");
-      divTappe.style.display = "none";
-      divViaggi = document.getElementById("visualizza-elenco-tappe-viaggio");
-      divViaggi.style.display = "block";
-      this.viaggio = [];
-      this.tappe = [];
-
-      this.pulisciCerchi();
-
-      this.removeMapListener();
-      this.pulisciMappa();
-      ElencoTappe.retrieveData(this.id);
+      if (this.modificato === true) {
+        let resp = confirm("Tornerai indietro senza salvare. Sei sicuro?");
+        if (resp === true) {
+          divTappe = document.getElementById("modifica-elenco-tappe-viaggio");
+          divTappe.style.display = "none";
+          divViaggi = document.getElementById("visualizza-elenco-tappe-viaggio");
+          divViaggi.style.display = "block";
+          this.viaggio = [];
+          this.tappe = [];
+          this.pulisciCerchi();
+          this.removeMapListener();
+          this.pulisciMappa();
+          ElencoTappe.retrieveData(this.id);
+        }
+      } else {
+        divTappe = document.getElementById("modifica-elenco-tappe-viaggio");
+        divTappe.style.display = "none";
+        divViaggi = document.getElementById("visualizza-elenco-tappe-viaggio");
+        divViaggi.style.display = "block";
+        this.viaggio = [];
+        this.tappe = [];
+        this.pulisciCerchi();
+        this.removeMapListener();
+        this.pulisciMappa();
+        ElencoTappe.retrieveData(this.id);
+      }
     },
     retrieveData: function (id) {
       this.id = id;
       let header = {};
       header = this.setAuthHeader(header);
-      let response = fetch(
-        `http://localhost:8080/BilleMatteoProgettoEsame/apiViaggi/viaggi/${this.id}`,
-        {
-          method: "GET",
-          headers: header,
-        }
-      )
+      let response = fetch(`apiViaggi/viaggi/${this.id}`, {
+        method: "GET",
+        headers: header,
+      })
         .then((response) => response.json())
         .then((data) => {
           if (data.message !== "NotAccepted") {
+            jwtToken=data.jwtToken;
             this.viaggio = data;
             this.nomeViaggio = data.nome;
             this.mezzo = data.mezzo;
+
             this.setTappe();
             this.setCorners();
             this.disegnaViaggio();
@@ -514,67 +497,64 @@ let ModificaTappe = new Vue({
     },
     setTappe: function () {
       this.tappe = [];
-      for (let i = 0;i < this.viaggio.features[0].geometry.coordinates.length; i++ ) {
-        let check=false;
-        let checkText="";
+      for (let i = 0; i < this.viaggio.features[0].geometry.coordinates.length; i++) {
+        let check = false;
+        let checkText = "";
 
-        
-        for(let j=1;j<this.viaggio.features.length;j++){
-          if(this.viaggio.features[j].id===i){
-            check= true;
-            checkText= this.viaggio.features[j].properties.text;
+        for (let j = 1; j < this.viaggio.features.length; j++) {
+          if (this.viaggio.features[j].id === i) {
+            check = true;
+            checkText = this.viaggio.features[j].properties.text;
           }
-          
         }
         this.tappe.push({
-          "idTappa": i,
-          "coordinates": [
-            this.viaggio.features[0].geometry.coordinates[i][1],
-            this.viaggio.features[0].geometry.coordinates[i][0],
-          ],
-          "check":check,
-          "checkText":checkText
-          
+          idTappa: i,
+          coordinates: [this.viaggio.features[0].geometry.coordinates[i][1], this.viaggio.features[0].geometry.coordinates[i][0]],
+          check: check,
+          checkText: checkText,
         });
       }
+      this.idUltimaTappa=this.tappe.length-1;
       this.$forceUpdate();
-      console.log(this.tappe);
     },
     salvaViaggio: function () {
+      this.salvaModificaMezzo();
+      this.salvaNomeViaggio();
       let id = parseInt(this.viaggio.id);
       let header = {
         "Content-Type": "application/json",
       };
       header = this.setAuthHeader(header);
-      let response = fetch(
-        `http://localhost:8080/BilleMatteoProgettoEsame/apiViaggi/viaggi/${id}`,
-        {
-          method: "PUT",
-          headers: header,
-          body: JSON.stringify(this.viaggio),
-        }
-      );
+      let response = fetch(`apiViaggi/viaggi/${id}`, {
+        method: "PUT",
+        headers: header,
+        body: JSON.stringify(this.viaggio),
+      }).then((response)=>response.json())
+      .then((data)=>{
+        jwtToken=data.jwtToken;
+        this.modificato = false;
+        this.tornaAVisualizzazione();
+      });
     },
     modificaPunto: function (event, id) {
       let container = document.querySelector(`#container-tappa-${id}`);
       container.style.display = "none";
-      let modifierContainer = document.querySelector(
-        `#container-modifica-tappa-${id}`
-      );
+      let modifierContainer = document.querySelector(`#container-modifica-tappa-${id}`);
       modifierContainer.style.display = "flex";
+      console.log("modifica punto");
+      console.log(this.viaggio);
     },
     indietroSenzaSalvarePunto(event, id) {
       for (let i = 0; i < this.tappe.length; ++i) {
         if (this.tappe[i].idTappa === i) {
-          if (this.tappe[i].coordinates[0] === "Nan") {
+          if (this.tappe[i].coordinates[0] === "Nan" || this.tappe[i].coordinates[1]==="Nan") {
             this.cancellaPunto(event, id);
           } else {
             let container = document.querySelector(`#container-tappa-${id}`);
             container.style.display = "flex";
-            let modifierContainer = document.querySelector(
-              `#container-modifica-tappa-${id}`
-            );
+            let modifierContainer = document.querySelector(`#container-modifica-tappa-${id}`);
             modifierContainer.style.display = "none";
+
           }
         }
         circles.removeFrom(map);
@@ -583,22 +563,23 @@ let ModificaTappe = new Vue({
       }
     },
     cancellaPunto: function (event, id) {
+      console.log(this.viaggio);
+      this.modificato = true;
       this.tappe.splice(id, 1);
       for (let i = 0; i < this.tappe.length; ++i) {
         this.tappe[i].idTappa = i;
       }
-      console.log(id);
-      for(let i=1;i<this.viaggio.features.length;i++){
-        
-        if(this.viaggio.features[i].id>id && this.viaggio.features[i].geometry.type==="Point"){
-          console.log("prima");
-          console.log(this.viaggio.features[i].id);
-          console.log(this.viaggio.features[i].id-1);
-          this.viaggio.features[i].id=this.viaggio.features[i].id-1;
-          console.log("dopo");
-          console.log(this.viaggio.features[i]);
+      for (let i = 1; i < this.viaggio.features.length; i++) {
+        if (this.viaggio.features[i].id === id && this.viaggio.features[i].geometry.type === "Point") {
+          this.viaggio.features.splice(i,1);
+        }
+
+        if (this.viaggio.features[i].id > id && this.viaggio.features[i].geometry.type === "Point") {
+          this.viaggio.features[i].id = this.viaggio.features[i].id - 1;
+
         }
       }
+      this.$forceUpdate();
       this.aggiornaTutteLeCoordinateViaggio();
       this.pulisciCerchi();
       this.pulisciMappa();
@@ -609,15 +590,12 @@ let ModificaTappe = new Vue({
       var myStyle = { color: "#1766EB", weight: 3 };
       geoJsonLayer.addData(this.viaggio).addTo(map);
       geoJsonLayer.eachLayer(function (layer) {
-        if (
-          layer.feature.geometry.coordinates.length != 0 &&
-          layer.feature.geometry.type === "LineString"
-        ) {
+        if (layer.feature.geometry.coordinates.length != 0 && layer.feature.geometry.type === "LineString") {
           layer.setStyle(myStyle);
         }
       });
     },
-    pulisciCerchi:function(){
+    pulisciCerchi: function () {
       if (map.hasLayer(circles)) {
         map.removeLayer(circles);
         circles = L.featureGroup();
@@ -632,21 +610,23 @@ let ModificaTappe = new Vue({
     SalvaModificaPunto: function (event, id) {
       let button = document.getElementById(`button-${id}`);
       button.classList.remove("show");
-      button.setAttribute("aria-expanded","false");
-
+      button.setAttribute("aria-expanded", "false");
 
       let lat = document.getElementById(`lat-tappa-${id}`).value;
       let lng = document.getElementById(`lng-tappa-${id}`).value;
       let check = document.getElementById(`check-tappa-${id}`).checked;
       let checkText = document.getElementById(`check-text-tappa-${id}`).value;
-
-      //if(this.latlongFormat(lat) && this.latlongFormat(lng)){
+      
+      console.log(lat+"  "+lng);
+      if(lat==="Nan" || lng==="Nan"){
+        console.log("cancella punto");
+        this.cancellaPunto(null,id);
+        return undefined;
+      }
 
       let container = document.querySelector(`#container-tappa-${id}`);
       container.style.display = "flex";
-      let modifierContainer = document.querySelector(
-        `#container-modifica-tappa-${id}`
-      );
+      let modifierContainer = document.querySelector(`#container-modifica-tappa-${id}`);
       modifierContainer.style.display = "none";
 
       this.tappe.forEach((tappa) => {
@@ -660,60 +640,56 @@ let ModificaTappe = new Vue({
           id: "",
         };
 
-
         if (tappa.idTappa === id) {
-          console.log(id);
 
           tappa.coordinates[0] = parseFloat(lat);
           tappa.coordinates[1] = parseFloat(lng);
           tappa.check = check;
           tappa.checkText = checkText;
-          
-          let exist=false;
-          for(let i=1;i<this.viaggio.features.length;i++){
-            if(this.viaggio.features[i].id===id){
-              exist=true;
+
+          let exist = false;
+          for (let i = 1; i < this.viaggio.features.length; i++) {
+            if (this.viaggio.features[i].id === id) {
+              exist = true;
             }
           }
 
-          if (tappa.check === true ) {
-            if(exist===false){
+          console.log(tappa);
+          if (tappa.check === true) {
+            if (exist === false) {
               puntoImportante.id = id;
               puntoImportante.geometry.coordinates[0] = tappa.coordinates[1];
               puntoImportante.geometry.coordinates[1] = tappa.coordinates[0];
               puntoImportante.properties.text = tappa.checkText;
               this.viaggio.features.push(puntoImportante);
             }
-          }else{
+          } else {
             tappa.checkText = "";
-            for(let i=1;i<this.viaggio.features.length;i++){
-              if(this.viaggio.features[i].id===id){
-                this.viaggio.features.splice(i,1);
+            for (let i = 1; i < this.viaggio.features.length; i++) {
+              if (this.viaggio.features[i].id === id) {
+                this.viaggio.features.splice(i, 1);
               }
             }
           }
-          console.log(this.viaggio.features);
 
-
+          //this.viaggio.features[0].geometry.coordinates.push([,]);
           this.viaggio.features[0].geometry.coordinates[id][0] = tappa.coordinates[1];
           this.viaggio.features[0].geometry.coordinates[id][1] = tappa.coordinates[0];
         }
       });
 
       this.$forceUpdate();
-      circles.removeFrom(map);
+      this.pulisciCerchi();
       this.pulisciMappa();
       this.disegnaViaggio();
-
     },
     latlongFormat: function (string) {
       const regex = /"[0-9]*\.[0-9]*/;
       return regex.test(string);
     },
     aggiungiTappaAllaFine(lat, lng) {
-     
       let idTappa = this.tappe.length;
-
+      this.modificato = true;
       if (lat === undefined || lng === undefined) {
         let coords = ["Nan", "Nan"];
         let newTappa = { idTappa: idTappa, coordinates: coords };
@@ -723,7 +699,7 @@ let ModificaTappe = new Vue({
         });
       } else {
         let coords = [lat, lng];
-        window.location.href="#tappa-" + idTappa;
+        window.location.href = "#tappa-" + idTappa;
         let newTappa = { idTappa: idTappa, coordinates: coords };
         this.tappe.push(newTappa);
         this.aggiornaTutteLeCoordinateViaggio();
@@ -732,19 +708,15 @@ let ModificaTappe = new Vue({
     aggiornaTutteLeCoordinateViaggio: function () {
       this.viaggio.features[0].geometry.coordinates = [];
       this.tappe.forEach((tappa) => {
-        this.viaggio.features[0].geometry.coordinates.push([
-          tappa.coordinates[1],
-          tappa.coordinates[0],
-        ]);
+        this.viaggio.features[0].geometry.coordinates.push([tappa.coordinates[1], tappa.coordinates[0]]);
       });
       this.setCorners();
+      this.pulisciCerchi();
       this.pulisciMappa();
       this.disegnaViaggio();
     },
     inserisciDatiConClik: function (latlng) {
-      let elements = document.getElementsByClassName(
-        "container-modifica-tappa"
-      );
+      let elements = document.getElementsByClassName("container-modifica-tappa");
       let selectedElem;
       if (elements.length !== 0) {
         for (let i = 0; i < elements.length; ++i) {
@@ -777,61 +749,27 @@ let ModificaTappe = new Vue({
       }
       return header;
     },
-    modificaNomeViaggio: function () {
-      document.querySelector("#nome-viaggio").style.display = "none";
-      document.querySelector("#modifica-nome").style.display = "none";
-      document.querySelector("#cambia-nome").style.display = "flex";
-      document.querySelector("#salva-nome").style.display = "block";
-    },
     salvaNomeViaggio: function () {
-      document.querySelector("#nome-viaggio").style.display = "flex";
-      document.querySelector("#modifica-nome").style.display = "block";
-      document.querySelector("#cambia-nome").style.display = "none";
-      document.querySelector("#salva-nome").style.display = "none";
-
       this.nomeViaggio = document.querySelector("#nuovo-nome-viaggio").value;
       this.viaggio.nome = this.nomeViaggio;
     },
-    modificaMezzo: function () {
-      document.querySelector("#mezzo-attuale").style.display = "none";
-      document.querySelector("#modifica-mezzo").style.display = "none";
-      document.querySelector("#nuovo-mezzo").style.display = "flex";
-      document.querySelector("#salva-mezzo").style.display = "block";
-    },
     salvaModificaMezzo: function () {
-      document.querySelector("#mezzo-attuale").style.display = "flex";
-      document.querySelector("#modifica-mezzo").style.display = "block";
-      document.querySelector("#nuovo-mezzo").style.display = "none";
-      document.querySelector("#salva-mezzo").style.display = "none";
-
-      this.mezzo = document.querySelector("#nuovo-mezzo").value;
+      this.mezzo = document.querySelector("#nuovo-mezzo-viaggio").value;
       this.viaggio.mezzo = this.mezzo;
     },
-    nascondiModificaNomeEModificaMezzo: function () {
-      document.querySelector("#cambia-nome").style.display = "none";
-      document.querySelector("#salva-nome").style.display = "none";
-      document.querySelector("#nome-viaggio").style.display = "flex";
-      document.querySelector("#modifica-nome").style.display = "block";
-      document.querySelector("#nuovo-mezzo").style.display = "none";
-      document.querySelector("#salva-mezzo").style.display = "none";
-    },
     EvidenziaTappa: function (id) {
-
       this.pulisciCerchi();
 
       this.tappe.forEach(function (tappa) {
-        if (tappa.idTappa === id) {
-          let circle = L.circleMarker(
-            [tappa.coordinates[0], tappa.coordinates[1]],
-            {
-              radius: 10,
-              color: "red",
-              weight: 0.5,
-              opacity: 1,
-              fillColor: "red",
-              fillOpacity: 1,
-            }
-          ).addTo(circles);
+        if (tappa.idTappa === id && tappa.coordinates[0]!=="Nan" && tappa.coordinates[1]!="Nan") {
+          let circle = L.circleMarker([tappa.coordinates[0], tappa.coordinates[1]], {
+            radius: 10,
+            color: "red",
+            weight: 0.5,
+            opacity: 1,
+            fillColor: "red",
+            fillOpacity: 1,
+          }).addTo(circles);
           map.addLayer(circles);
         }
       });
@@ -876,32 +814,33 @@ let ModificaTappe = new Vue({
     },
   },
   mounted: function () {
-    this.nascondiModificaNomeEModificaMezzo();
+    //this.nascondiModificaNomeEModificaMezzo();
   },
   filters: {
     formatNumber: function (value) {
       if (!value) {
         return "";
       }
-      return parseFloat(value).toFixed(2);
+      return parseFloat(value).toFixed(5);
     },
   },
 });
 
 let SignUpLoginButtons = new Vue({
   el: signUpLoginLogout,
-  data:{
-    nome:""
+  data: {
+    nome: "",
   },
   methods: {
     showLoginForm: function () {
+      document.querySelector("#login .side-bar-title p").innerHTML = "Login";
       document.querySelector("#login").style.display = "block";
       document.querySelector("#loginform").style.display = "block";
       document.querySelector("#right-side-container").style.display = "block";
       document.querySelector("#signupform").style.display = "none";
-      
     },
     showSignUpForm: function () {
+      document.querySelector("#login .side-bar-title p").innerHTML = "Sign Up";
       document.querySelector("#login").style.display = "block";
       document.querySelector("#signupform").style.display = "block";
       document.querySelector("#right-side-container").style.display = "block";
@@ -909,9 +848,14 @@ let SignUpLoginButtons = new Vue({
     },
     logout: function () {
       document.querySelector("#signUpLogin").style.display = "block";
-      document.querySelector("#right-side-container").style.display = "none";
+
+      let rightSideElements = document.querySelectorAll(".right-side");
+      rightSideElements.forEach((element) => {
+        element.style.display = "none";
+      });
+
       document.querySelector("#logout").style.display = "none";
-      jwtToken="";
+      jwtToken = "";
       this.pulisciCerchi();
       this.pulisciMappa();
     },
@@ -919,11 +863,11 @@ let SignUpLoginButtons = new Vue({
       document.querySelector("#signUpLogin").style.display = "none";
       document.querySelector("#logout").style.display = "block";
     },
-    nascondiLogout:function(){
+    nascondiLogout: function () {
       document.querySelector("#logout").style.display = "none";
       document.querySelector("#right-side-container").style.display = "none";
     },
-    pulisciCerchi:function(){
+    pulisciCerchi: function () {
       if (map.hasLayer(circles)) {
         map.removeLayer(circles);
         circles = L.featureGroup();
@@ -936,8 +880,8 @@ let SignUpLoginButtons = new Vue({
       }
     },
   },
-  mounted:function(){
-    this.nascondiLogout();
+  mounted: function () {
+    //this.nascondiLogout();
   },
 });
 
@@ -947,17 +891,15 @@ let loginWindows = new Vue({
     sendLogin: function () {
       let name = document.querySelector("#name").value;
       let password = document.querySelector("#password").value;
-      if(name ==""){
+      if (name == "") {
         alert("Attenzione nome non inserito");
         return "";
       }
 
-      if(password ==""){
+      if (password == "") {
         alert("Attenzione password non inserita");
         return "";
       }
-
-
 
       // https://stackoverflow.com/questions/34952392/simple-way-to-hash-password-client-side-right-before-submitting-form
       let hashObj = new jsSHA("SHA-512", "TEXT", { numRounds: 1 });
@@ -968,40 +910,38 @@ let loginWindows = new Vue({
       let header = {
         Authorization: `Basic ${Auth}`,
       };
-      let response = fetch(
-        `http://localhost:8080/BilleMatteoProgettoEsame/apiLogin/login`,
-        {
-          method: "GET",
-          headers: header,
-        }
-      )
+      let response = fetch(`apiLogin/login`, {
+        method: "GET",
+        headers: header,
+      })
         .then((response) => response.json())
         .then((data) => {
-          if(data.message==="Accepted"){  
+          if (data.message === "Accepted") {
             jwtToken = data.jwtToken;
             SignUpLoginButtons.showLogoutButton();
             this.mostraViaggi();
+            //ElencoViaggi.setThisDay();
             ElencoViaggi.retrieveData();
-          }else{
+          } else {
             alert("Errore nel login, riprova");
-            document.querySelector("#password").value="";
-            return ""
+            document.querySelector("#password").value = "";
+            return "";
           }
         });
 
-        document.querySelector("#name").value="";
-        document.querySelector("#password").value="";
+      document.querySelector("#name").value = "";
+      document.querySelector("#password").value = "";
     },
     sendSignUp: function () {
       let name = document.querySelector("#namesignup").value;
       let password1 = document.querySelector("#passwordsignup").value;
       let password2 = document.querySelector("#repeatpasswordsignup").value;
-      if(name ==""){
+      if (name == "") {
         alert("Attenzione nome non inserito");
         return "";
       }
 
-      if(password1 ==""){
+      if (password1 == "") {
         alert("Attenzione prima password non inserita");
         return "";
       }
@@ -1016,13 +956,10 @@ let loginWindows = new Vue({
           Authorization: `Basic ${Auth}`,
           "Content-Type": "application/json",
         };
-        let response = fetch(
-          `http://localhost:8080/BilleMatteoProgettoEsame/apiSignUp/SignUp`,
-          {
-            method: "GET",
-            headers: header,
-          }
-        )
+        let response = fetch(`apiSignUp/SignUp`, {
+          method: "GET",
+          headers: header,
+        })
           .then((response) => response.json())
           .then((data) => {
             jwtToken = data.jwtToken;
@@ -1030,15 +967,15 @@ let loginWindows = new Vue({
             this.mostraViaggi();
             ElencoViaggi.retrieveData();
           });
-      }else{  
+      } else {
         alert("Le password non corrispondono");
-        document.querySelector("#repeatpasswordsignup").value="";
-        return "";  
+        document.querySelector("#repeatpasswordsignup").value = "";
+        return "";
       }
-      
-      document.querySelector("#namesignup").value="";
-      document.querySelector("#passwordsignup").value="";
-      document.querySelector("#repeatpasswordsignup").value="";
+
+      document.querySelector("#namesignup").value = "";
+      document.querySelector("#passwordsignup").value = "";
+      document.querySelector("#repeatpasswordsignup").value = "";
     },
     mostraViaggi: function () {
       divViaggi = document.querySelector("#elenco-viaggi-giornata");
@@ -1055,4 +992,3 @@ let setAuthHeader = function (header) {
   }
   return header;
 };
-

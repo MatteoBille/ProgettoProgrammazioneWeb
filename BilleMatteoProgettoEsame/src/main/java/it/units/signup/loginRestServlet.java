@@ -27,7 +27,7 @@ public class loginRestServlet {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response SetNewUser(@Context ContainerRequestContext ctx) throws SQLException {
+    public Response loginUser(@Context ContainerRequestContext ctx) throws SQLException {
 
         String urlConnection = context.getInitParameter("DatabaseUrl");
         Connection conn = sqliteConnection.connect(urlConnection);
