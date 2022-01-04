@@ -6,6 +6,7 @@ import io.jsonwebtoken.impl.TextCodec;
 import it.units.travelshandler.sqliteConnection;
 import org.json.JSONObject;
 
+import javax.servlet.ServletContext;
 import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
@@ -17,14 +18,20 @@ import java.util.Base64;
 import java.util.List;
 
 @Path("/login")
-public class loginRestServlet {
+public class LoginRestServlet {
 
-    private static final String SECRET_KEY = "Yn2kjibddFAWtnPJ2AFlL8WXmohJMCvigQggaEypa5E=";
+    private final String SECRET_KEY = "Yn2kjibddFAWtnPJ2AFlL8WXmohJMCvigQggaEypa5E=";
+
+    @Context ServletContext context;
+
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response SetNewUser(@Context ContainerRequestContext ctx) throws SQLException {
-        Connection conn = sqliteConnection.connect();
+    public Response loginUser(@Context ContainerRequestContext ctx) throws SQLException {
+
+        String urlConnection = context.getInitParameter("DatabaseUrl");
+        Connection conn = sqliteConnection.connect(urlConnection);
+
         String jwt = "";
         JSONObject response =new JSONObject();
         if (ctx.getHeaders().get("Authorization") != null) {
@@ -32,41 +39,42 @@ public class loginRestServlet {
             String[] request = auth.get(0).toString().split(" ");
 
             if (request[0].equals(("Basic"))) {
-                conn = sqliteConnection.connect();
                 byte[] decodedBytes = Base64.getDecoder().decode(request[1]);
                 String decodedString = new String(decodedBytes);
-                String[] AuthStrings = decodedString.split("\\.");
+                String[] authStrings = decodedString.split("\\.");
 
-                String query2 = "SELECT * FROM Utenti WHERE NomeUtente = \"" + AuthStrings[0] + "\";";
-                try (Statement stmt = conn.createStatement()) {
+                if (authStrings.length == 2) {
 
-                    ResultSet rs = stmt.executeQuery(query2);
-                    if (rs.next() != false) {
+                    String query2 = "SELECT * FROM Utenti WHERE NomeUtente = \"" + authStrings[0] + "\";";
+                    try (Statement stmt = conn.createStatement()) {
 
-                        String password = rs.getString("Password");
-                        int id = rs.getInt("idUtente");
-                        if (password.equals(AuthStrings[1])) {
-                            jwt = SetToken(AuthStrings[0], id);
-                            response.put("jwtToken",jwt);
+                        ResultSet rs = stmt.executeQuery(query2);
+                        if (rs.next() != false) {
+
+                            String password = rs.getString("Password");
+                            int id = rs.getInt("idUtente");
+                            if (password.equals(authStrings[1])) {
+                                jwt = SetToken(authStrings[0], id);
+                                response.put("jwtToken", jwt);
+                                response.put("message","Accepted");
+                                return Response.ok(response.toString()).build();
+                            }
                         }
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
                     }
-                } catch (SQLException throwables) {
-                    throwables.printStackTrace();
-                }
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+                    try {
+                        conn.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
 
-            } else {
-                return Response.ok("{\"message\":\"NotAccepted\"}").build();
+                }
             }
-        } else {
-            return Response.ok("{\"message\":\"NotAccepted\"}").build();
         }
-
+        response.put("message","NotAccepted");
         return Response.ok(response.toString()).build();
+
     }
 
     public String SetToken(String name, int id) {

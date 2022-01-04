@@ -2,543 +2,352 @@
 <html lang="en">
   <head>
     <title>Mappa viaggi</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!--jjSha encription-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsSHA/2.0.2/sha.js"></script>
     <!--Bootstrap import-->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-      crossorigin="anonymous">
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-      crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     <!-- leaflet import-->
-    <link rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
-      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="crossorigin=""
-      />
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
-      integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="crossorigin=""></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
     <!--Vue import-->
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <!--Style import-->
-    <link href="./assets/css/style.css" rel="stylesheet">
+    <link href="./assets/css/style.css" rel="stylesheet" />
+    <!--Script import-->
     <script src="./assets/js/Script.js" defer></script>
+
+
   </head>
   <body class="text-center vsc-initialized">
     <div class="fixed-top fixed-bottom">
       <!-- Examples Bootstrap-->
-      <header class="navbar p-0 shadow p-3 text-white">
-        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">Company
-          name</a>
-        <button class="navbar-toggler position-absolute d-md-none collapsed"
-          type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu"
-          aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle
-          navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
+      <header class="navbar py-0 shadow px-3 text-white align-content-center">
+        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">GESTORE VIAGGI</a>
         <div id="signUpLoginLogout" class="navbar-nav">
           <div id="signUpLogin" class="text-end">
-            <button type="button" class="btn btn-outline-light me-2"
-              v-on:click="showLoginForm()"><p class="text-white">Login</p></button>
-            <button type="button" class="btn btn-warning"
-              v-on:click="showSignUpForm()"><p class="text-white">Sign-up</p></button>
+            <button type="button" class="btn btn-primary me-2 text-nowrap" v-on:click="showLoginForm()">
+              <p class="text-white">Login</p>
+            </button>
+            <button type="button" class="btn btn-secondary text-nowrap" v-on:click="showSignUpForm()">
+              <p class="text-white">Sign-up</p>
+            </button>
           </div>
           <div id="logout" class="text-end">
-            <button type="button" class="btn btn-outline-light me-2"
-              v-on:click="logout()"><p class="text-white">Logout</p></button>
+            <button type="button" class="btn btn-outline-light me-2" v-on:click="logout()"><p class="text-white">Logout</p></button>
           </div>
         </div>
       </header>
 
       <main role="main" class="inner cover bg-secondary">
-
         <div class="container-fluid h-100">
-          <div class="row align-items-start h-100">
-            <div class="col-7 h-100 p-3 left-side h-100">
+          <div id="general-container" class="row align-items-start h-100 overflow-auto">
+            <div class="col-lg-7 col-md-12 col-sm-12 col-xs-12 h-50 mh-50 p-3 left-side h-100">
               <div class="h-100 row align-items-center justify-content-center">
-                <div id="map" class="col-4 align-self-center">
-                </div>
+                <div id="map" class="h-100 align-self-center"></div>
               </div>
             </div>
-            <div id="right-side" class="right-side h-100 col-5">
+            <div id="right-side-container" class="right-side h-50 mh-50 col-lg-5 col-md-12 col-sm-12 col-xs-12">
               <div id="login" class="col h-100 p-3 right-side">
-                <div class="h-100 row align-items-center
-                  justify-content-center">
+                <div class="h-100 row align-items-center justify-content-center">
                   <div class="col-4 align-self-center w-75 h-100">
-                    <div class="row d-flex align-items-start
-                      justify-content-center
-                      border side-bar-title text-white">
-                      <p class="d-block m-0 text-white">Login</p>
+                    <div class="row d-flex align-items-center justify-content-center border side-bar-title text-white">
+                      <p class="d-block m-0 text-white"></p>
                     </div>
-                    <div id="loginform" class="row row-cols-1
-                      justify-content-center
-                      overflow-auto side-bar-content">
-                      <div class="row">
-                        <input id="name" type="text" class="form-control"
-                          aria-label="12.12345" aria-describedby="basic-addon1"
-                          placeholder="nome">
-                        <input id="password" type="text" class="form-control"
-                          aria-label="12.12345" aria-describedby="basic-addon1"
-                          placeholder="password">
-                        <input id="sendlogin" type="button" class="submit"
-                          aria-label="12.12345" value="login"
-                          aria-describedby="basic-addon1"
-                          v-on:click="sendLogin()">
+                    <div id="loginform" class="row row-cols-1 justify-content-center overflow-auto side-bar-content">
+                      <div class="row justify-content-center m-0">
+                        <div class="input-group m-1">
+                          <span class="input-group-text" id="basic-addon-nome-login">nome</span>
+                          <input id="name" type="text" class="form-control" aria-label="12.12345" aria-describedby="basic-addon-nome-login" placeholder="nome" />
+                        </div>
+
+                        <div class="input-group m-1">
+                          <span class="input-group-text" id="basic-addon-password-login">password</span>
+                          <input id="password" type="password" class="form-control" aria-label="12.12345" aria-describedby="basic-addon-password-login" placeholder="password" />
+                        </div>
+
+                        <input id="sendlogin" type="button" class="submit w-25" value="login" v-on:click="sendLogin()" />
                       </div>
                     </div>
 
-                    <div id="signupform" class="row row-cols-1
-                      justify-content-center
-                      overflow-auto side-bar-content">
-                      <div class="row">
-                        <input id="namesignup" type="text" class="form-control"
-                          aria-label="12.12345" aria-describedby="basic-addon1"
-                          placeholder="nome">
-                        <input id="passwordsignup" type="text"
-                          class="form-control" aria-label="12.12345"
-                          aria-describedby="basic-addon1"
-                          placeholder="password">
-                        <input id="repeatpasswordsignup" type="text"
-                          class="form-control" aria-label="12.12345"
-                          aria-describedby="basic-addon1" placeholder="repeat
-                          password">
-                        <input id="sendsignup" type="button" class="submit"
-                          aria-label="12.12345" value="login"
-                          aria-describedby="basic-addon1"
-                          v-on:click="sendSignUp()">
+                    <div id="signupform" class="row row-cols-1 justify-content-center overflow-auto side-bar-content">
+                      <div class="row justify-content-center m-0">
+                        <div class="input-group m-1">
+                          <span class="input-group-text" id="basic-addon-nome-signup">nome</span>
+                          <input id="namesignup" type="text" class="form-control" aria-label="12.12345" aria-describedby="basic-addon-nome-signup" placeholder="nome" />
+                        </div>
+
+                        <div class="input-group m-1">
+                          <span class="input-group-text" id="basic-addon-password-signup">password</span>
+                          <input id="passwordsignup" type="password" class="form-control" aria-label="12.12345" aria-describedby="basic-addon-password-signup" placeholder="password" />
+                        </div>
+
+                        <div class="input-group m-1">
+                          <span class="input-group-text" id="basic-addon-repeatpassword-signup">ripeti password</span>
+                          <input id="repeatpasswordsignup" type="password" class="form-control" aria-label="12.12345" aria-describedby="basic-addon-repeatpassword-signup" placeholder="ripeti password" />
+                        </div>
+
+                        <input id="sendsignup" type="button" class="submit w-25" value="SignUp" v-on:click="sendSignUp()" />
                       </div>
                     </div>
-                    <div class="row align-items-start justify-content-center
-                      border side-bar-footer">
-                      <div class="col shadow h-100">
-                      </div>
+                    <div class="row align-items-start justify-content-center border side-bar-footer">
+                      <div class="col shadow h-100"></div>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div id="elenco-viaggi-giornata" class="col h-100 p-3 right-side">
-                <div class="h-100 row align-items-center
-                  justify-content-center">
+                <div class="h-100 row align-items-center justify-content-center">
                   <div class="col-4 align-self-center w-75 h-100">
-                    <div id="elenco-viaggio-viaggio-titolo" class="row
-                      align-items-start justify-content-center border
-                      side-bar-title text-white">
-                      <div class="col-2 shadow h-100 d-flex align-items-center
-                        justify-content-center m-0 p-0"><button class="btn
-                          btn-primary h-100 w-100" v-on:click="changeDay(-1)">
-                          -1 giorno</button></div>
-                      <div id="calendar" class="col-8 shadow h-100 d-flex
-                        align-items-center justify-content-center m-0 p-0">
-                        <input id="data-viaggi" type="text" class="text-center
-                          h-100 w-100 form-control" :value="date"
-                          v-on:input="date=
-                          $event.target.value" v-on:focusout="setNewDate(date)"
-                          v-on:submit="setNewDate(date)">
+                    <div id="elenco-viaggio-viaggio-titolo" class="row align-items-start justify-content-center border side-bar-title text-white">
+                      <div class="col-3 shadow h-100 d-flex align-items-center justify-content-center m-0 p-0">
+                        <button class="btn btn-primary h-100 w-100 text-nowrap m-0 p-0" v-on:click="changeDay(-1)"><p>-1 giorno</p></button>
                       </div>
-                      <div class="col-2 shadow h-100 d-flex align-items-center
-                        justify-content-center m-0 p-0"><button class="btn
-                          btn-primary h-100 w-100" v-on:click="changeDay(1)">+1
-                          giorno</button></div>
+
+                      <div id="date-picker" class="col-6 shadow h-100 d-flex align-items-center justify-content-center m-0 p-0">
+                        <input id="data-viaggi" type="date" class="text-center h-100 w-100 form-control" v-on:change="setNewDate()" v-on:input="setNewDate()" />
+                      </div>
+
+                      <div class="col-3 shadow h-100 d-flex align-items-center justify-content-center m-0 p-0">
+                        <button class="btn btn-primary h-100 w-100 text-nowrap m-0 p-0" v-on:click="changeDay(1)"><p>+1 giorno</p></button>
+                      </div>
                     </div>
 
-                    <div class="row row-cols-1 justify-content-center
-                      overflow-auto side-bar-content">
-
-
-                      <div v-bind:id="'viaggio-' + viaggio.id"
-                        class="side-bar-travel elenco-viaggi" v-for="viaggio in
-                        viaggi" v-on:load="disegnaViaggio"
-                        v-on:click="EvidenziaViaggio(viaggio.id)">
+                    <div class="row row-cols-1 justify-content-center overflow-auto side-bar-content">
+                      <div
+                        v-bind:id="'viaggio-' + viaggio.id"
+                        class="side-bar-travel elenco-viaggi"
+                        v-for="viaggio in
+                        viaggi"
+                        v-on:load="disegnaViaggio"
+                        v-on:click="evidenziaViaggio(viaggio.id)"
+                      >
                         <div class="row row-cols h-100">
-                          <div class="col-4 gx-0 d-flex justify-content-center
-                            border">
+                          <div class="col-4 gx-0 d-flex justify-content-center border">
                             <p class="m-0 d-flex align-items-center">{{viaggio.nome}}</p>
                           </div>
-                          <div class="col-4 gx-0 d-flex justify-content-center
-                            border">
+                          <div class="col-4 gx-0 d-flex justify-content-center border">
                             <p class="m-0 d-flex align-items-center">{{viaggio.mezzo}}</p>
                           </div>
 
-                          <div class="col-4 shadow h-100 d-flex
-                            align-items-center justify-content-center border">
-                            <div class="dropdown">
-                              <button class="btn btn-secondary dropdown-toggle
-                                operation-button dropdown-button" type="button"
-                                v-bind:id="'button-' + viaggio.id"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                                Opzioni
-                              </button>
-                              <ul class="dropdown-menu"
-                                aria-labelledby="dropdownMenuButton1">
-                                <!---
-                                <li><a class="dropdown-item"
-                                    v-on:click="modificaTappe($event,viaggio.id)"
-                                    href="#">Modifica</a></li>-->
-                                <li><a class="dropdown-item"
-                                    v-on:click="eliminaViaggio($event,viaggio.id)"
-                                    href="#">Cancella</a></li>
-                                <li><a class="dropdown-item"
-                                    v-on:click="mostraTappe($event,viaggio.id)"
-                                    href="#">Visualizza</a></li>
+                          <div class="col-4 gx-0 d-flex justify-content-center border">
+                            <div class="dropdown h-100 w-100">
+                              <button class="btn btn-secondary dropdown-toggle operation-button dropdown-button h-100 w-100" type="button" v-bind:id="'button-' + viaggio.id" data-bs-toggle="dropdown" aria-expanded="false">Opzioni</button>
+                              <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                <li><a class="dropdown-item" v-on:click="eliminaViaggio(viaggio.id)" href="#">Cancella</a></li>
+                                <li><a class="dropdown-item" v-on:click="mostraTappe(viaggio.id)" href="#">Visualizza</a></li>
                               </ul>
                             </div>
                           </div>
                         </div>
                       </div>
-
                     </div>
-                    <div class="row align-items-start justify-content-center
-                      border side-bar-footer">
-                      <button type="button" class="btn btn-outline-light h-100
-                        w-100"
-                        v-on:click="aggiungiViaggio($event)">Aggiungi
-                        Viaggio</button>
+                    <div class="row align-items-start justify-content-center border side-bar-footer">
+                      <button type="button" class="btn btn-outline-light h-100 w-100 p-0" v-on:click="aggiungiViaggio()">Aggiungi Viaggio</button>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div id="modifica-elenco-tappe-viaggio" class="col h-100 p-3
-                right-side">
-                <div class="h-100 row align-items-center
-                  justify-content-center">
+              <div id="modifica-elenco-tappe-viaggio" class="col h-100 p-3 right-side">
+                <div class="h-100 row align-items-center justify-content-center">
                   <div class="col-4 align-self-center w-75 h-100">
-                    <div id="elenco-tappe-viaggio-titolo" class="row
-                      align-items-start justify-content-center border
-                      side-bar-title text-white">
-                      <div id="nome-viaggio" class="col shadow w-40 h-100
-                        align-items-center justify-content-center m-0 p-0">
-                        <p class="d-block m-0 text-white">{{nomeViaggio}}</p></div>
-                      <div id="cambia-nome" class="col shadow w-40 h-100
-                        align-items-center justify-content-center m-0 p-0">
-                        <input id="nuovo-nome-viaggio" type="text"
-                          class="text-center h-100 w-100 form-control"
-                          :value="nomeViaggio" v-on:input="date=
-                          $event.target.value">
+                    <div id="elenco-tappe-viaggio-titolo" class="row align-items-start justify-content-center border side-bar-title text-white">
+                      <div id="cambia-nome" class="col-12 shadow w-40 h-50 input-group align-items-center justify-content-center m-0 p-0">
+                        <span class="input-nome w-50" id="nuovo-nome">nome viaggio</span>
+                        <input id="nuovo-nome-viaggio" type="text" class="text-center h-100 w-50 form-control" v-model="nomeViaggio" aria-describedby="nuovo-mezzo" v-on:input="modificato=true" />
                       </div>
-                      <div class="col shadow w-30 h-100 d-flex
-                        align-items-center justify-content-center m-0 p-0">
-                        <button id="modifica-nome" class="btn btn-primary h-100
-                          w-100" v-on:click="modificaNomeViaggio()">Modifica
-                          Nome</button>
-                        <button id="salva-nome" class="btn btn-primary h-100
-                          w-100" v-on:click="salvaNomeViaggio()">Salva Nome</button>
-                      </div>
-                      <div class="col shadow w-30 h-100 d-flex
-                        align-items-center justify-content-center m-0 p-0">
-                        <button class="btn btn-primary h-100 w-100"
-                          v-on:click="aggiungiTappaAllaFine()">aggiungi Tappa</button>
+                      <div id="cambia-mezzo" class="col-12 shadow w-40 h-50 input-group align-items-center justify-content-center m-0 p-0">
+                        <span class="input-nome w-50" id="nuovo-mezzo">mezzo utilizzato:</span>
+                        <input id="nuovo-mezzo-viaggio" type="text" class="text-center h-100 w-50 form-control" v-model="mezzo" aria-describedby="nuovo-mezzo" v-on:input="modificato=true" />
                       </div>
                     </div>
-
-                    <div class="row justify-content-center overflow-auto
-                      side-bar-infos">
-                      <div class="col-8 gx-0 d-flex justify-content-center
-                        border h-100">
-                        <p id="mezzo-attuale" class="m-0 align-items-center
-                          text-white">{{mezzo}}</p>
-                        <input id="nuovo-mezzo" type="text" class="text-center
-                          h-100 w-100 form-control" :value="mezzo"
-                          v-on:input="mezzo= $event.target.value">
-                      </div>
-                      <div class="col-4 gx-0 d-flex justify-content-center
-                        border h-100">
-                        <button id="modifica-mezzo" class="btn btn-primary h-100
-                          w-100" v-on:click="modificaMezzo()">modifica Mezzo</button>
-                        <button id="salva-mezzo" class="btn btn-primary h-100
-                          w-100" v-on:click="salvaModificaMezzo()">Salva Nome</button>
-                      </div>
+                    <div class="row align-items-start justify-content-center border side-bar-infos text-white align-content-center">
+                      <a v-bind:href="'#tappa-'+idUltimaTappa" class="btn btn-primary h-100 w-100 p-0 d-flex justify-content-center align-items-center" v-on:click="aggiungiTappaAllaFine()"><p>aggiungi Tappa</p></a>
                     </div>
 
-                    <div class="row row-cols-1 justify-content-cente
-                      overflow-auto side-bar-content">
-                      <div v-bind:id="'tappa-' + tappa.idTappa"
-                        class="side-bar-travel elenco-tappe" v-for="tappa in
-                        tappe" v-on:click="EvidenziaTappa(tappa.idTappa)">
-                        <div v-bind:id="'container-tappa-' + tappa.idTappa"
-                          class="row row-cols h-100 container-tappa">
-                          <div class="col-1 shadow border d-flex
-                            align-items-center justify-content-center">
+                    <div class="row row-cols-1 justify-content-cente overflow-auto side-bar-content">
+                      <div v-bind:id="'tappa-' + tappa.idTappa" class="side-bar-travel elenco-tappe" v-for="tappa in tappe" v-on:click="evidenziaTappa(tappa.idTappa)" >
+                        <div v-bind:id="'container-tappa-' + tappa.idTappa" class="row row-cols h-100 container-tappa">
+                          <div class="col-1 shadow border d-flex align-items-center justify-content-center">
                             <p class="m-0">{{tappa.idTappa}}</p>
                           </div>
                           <div class="col-7 row shadow border gx-0">
-                            <div class="col h-100 w-50 d-flex align-items-center
-                              justify-content-center">
+                            <div class="col h-100 w-50 d-flex align-items-center justify-content-center">
                               <p class="m-0">lat:{{tappa.coordinates[0]|formatNumber}}</p>
                             </div>
-                            <div class="col h-100 w-50 d-flex align-items-center
-                              justify-content-center">
+                            <div class="col h-100 w-50 d-flex align-items-center justify-content-center">
                               <p class="m-0">lnt:{{tappa.coordinates[1]|formatNumber}}</p>
                             </div>
                           </div>
-                          <div class="col-4 shadow border d-flex
-                            align-items-center justify-content-center">
+                          <div class="col-4 shadow border d-flex align-items-center justify-content-center">
                             <div class="dropdown">
-                              <button class="btn btn-secondary dropdown-toggle
-                                operation-button dropdown-button" type="button"
-                                v-bind:id="'button-' + tappa.idTappa"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                                Opzioni
-                              </button>
+                              <button class="btn btn-secondary dropdown-toggle operation-button dropdown-button" type="button" v-bind:id="'button-' + tappa.idTappa" data-bs-toggle="dropdown" aria-expanded="false">Opzioni</button>
                               <div class="dropdown-menu">
-                                <a class="dropdown-item"
-                                  v-on:click="modificaPunto($event,tappa.idTappa)"
-                                  href="#">Modifica</a>
-                                <a class="dropdown-item"
-                                  v-on:click="cancellaPunto($event,tappa.idTappa)"
-                                  href="#">Cancella</a>
+                                <a class="dropdown-item" v-on:click="modificaPunto(tappa.idTappa)" href="#">Modifica</a>
+                                <a class="dropdown-item" v-on:click="cancellaPunto(tappa.idTappa)" href="#">Cancella</a>
                               </div>
                             </div>
                           </div>
                         </div>
 
-                        <div v-bind:id="'container-modifica-tappa-' +
-                          tappa.idTappa" class="row row-cols h-100
-                          container-modifica-tappa">
-                          <div class="col-1 shadow border d-flex
-                            align-items-center justify-content-center">
+                        <div
+                          v-bind:id="'container-modifica-tappa-' +
+                          tappa.idTappa"
+                          class="row row-cols h-100 container-modifica-tappa"
+                        >
+                          <div class="col-1 shadow border d-flex align-items-center justify-content-center">
                             <p class="m-0">{{tappa.idTappa}}</p>
                           </div>
-                          <div class="col-lg-11 row row-cols-1 shadow border
-                            h-100
-                            gx-0">
-                            <div class="col h-25 w-100 d-flex align-items-center
-                              justify-content-center">
+                          <div class="col-lg-11 row row-cols-1 shadow border h-100 gx-0">
+                            <div class="col h-25 w-100 d-flex align-items-center justify-content-center">
                               <div class="input-group mb-1 w-75">
                                 <span class="input-group-text" id="lat">Latitudine:</span>
-                                <input v-bind:id="'lat-tappa-' + tappa.idTappa"
-                                  type="text" class="form-control"
-                                  placeholder="Lat"
-                                  :value="tappa.coordinates[0]"
-                                  aria-label="12.12345" aria-describedby="lat">
+                                <input v-bind:id="'lat-tappa-' + tappa.idTappa" type="text" class="form-control" placeholder="Lat" :value="tappa.coordinates[0]" aria-label="12.12345" aria-describedby="lat" />
                               </div>
-
                             </div>
-                            <div class="col h-25 w-100 d-flex align-items-center
-                              justify-content-center">
+                            <div class="col h-25 w-100 d-flex align-items-center justify-content-center">
                               <div class="input-group mb-1 w-75">
                                 <span class="input-group-text" id="lng">Longitudine:</span>
-                                <input v-bind:id="'lng-tappa-' + tappa.idTappa"
-                                  type="text" class="form-control"
-                                  placeholder="Lng"
-                                  :value="tappa.coordinates[1]"
-                                  aria-label="12.12345" aria-describedby="lng">
+                                <input v-bind:id="'lng-tappa-' + tappa.idTappa" type="text" class="form-control" placeholder="Lng" :value="tappa.coordinates[1]" aria-label="12.12345" aria-describedby="lng" />
                               </div>
-
                             </div>
-                            <div class="col h-25 w-100 d-flex align-items-center
-                              justify-content-center">
+                            <div class="col h-25 w-100 d-flex align-items-center justify-content-center">
                               <div class="input-group mb-1 w-75">
                                 <div class="input-group-text">
-                                  <input v-bind:id="'check-tappa-'+
-                                    tappa.idTappa" class="checkbox"
-                                    type="checkbox" v-model="tappa.check">
+                                  <input
+                                    v-bind:id="'check-tappa-'+
+                                    tappa.idTappa"
+                                    class="checkbox"
+                                    type="checkbox"
+                                    v-model="tappa.check"
+                                  />
                                 </div>
-                                <input v-bind:id="'check-text-tappa-' +
-                                  tappa.idTappa" type="text"
-                                  class="form-control" :value="tappa.checkText"
-                                  placeholder="Note per il punto"></div>
+                                <input
+                                  v-bind:id="'check-text-tappa-' +
+                                  tappa.idTappa"
+                                  type="text"
+                                  class="form-control"
+                                  :value="tappa.checkText"
+                                  placeholder="Note per il punto"
+                                />
+                              </div>
                             </div>
 
-                            <div class="col h-25 w-50 d-flex align-items-center
-                              justify-content-center">
-                              <input type="button" class="btn btn-primary"
-                                value="Indietro"
-                                v-on:click="indietroSenzaSalvarePunto($event,tappa.idTappa)">
+                            <div class="col h-25 w-50 d-flex align-items-center justify-content-center">
+                              <input type="button" class="btn btn-primary" value="Indietro" v-on:click="indietroSenzaSalvarePunto(tappa.idTappa)" />
                             </div>
-                            <div class="col h-25 w-50 d-flex align-items-center
-                              justify-content-center">
-                              <input type="button" class="btn btn-primary"
-                                value="Salva"
-                                v-on:click="SalvaModificaPunto($event,tappa.idTappa)">
+                            <div class="col h-25 w-50 d-flex align-items-center justify-content-center">
+                              <input type="button" class="btn btn-primary" value="Salva" v-on:click="salvaModificaPunto(tappa.idTappa)" />
                             </div>
                           </div>
                         </div>
                       </div>
-
-
                     </div>
-                    <div class="row align-items-start justify-content-center
-                      border
-                      side-bar-footer text-white">
-                      <div class="col shadow h-100 d-flex align-items-center
-                        justify-content-center m-0 p-0"><button class="btn
-                          btn-primary h-100 w-100"
-                          v-on:click="tornaAVisualizzazione()">Torna alla
-                          visualizzazione</button></div>
-                      <div class="col shadow h-100 d-flex align-items-center
-                        justify-content-center m-0 p-0"><button class="btn
-                          btn-primary h-100 w-100" v-on:click="salvaViaggio()">Salva
-                          e continua a modificare</button></div>
+                    <div class="row align-items-start justify-content-center border side-bar-footer text-white">
+                      <div class="col shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><button class="btn btn-primary h-100 w-100" v-on:click="tornaAVisualizzazione()">Torna indietro</button></div>
+                      <div class="col shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><button class="btn btn-primary h-100 w-100" v-on:click="salvaViaggio()">Salva</button></div>
                     </div>
                   </div>
                 </div>
               </div>
 
-
-              <div id="visualizza-elenco-tappe-viaggio" class="col h-100 p-3
-                right-side">
-                <div class="h-100 row align-items-center
-                  justify-content-center">
+              <div id="visualizza-elenco-tappe-viaggio" class="col h-100 p-3 right-side">
+                <div class="h-100 row align-items-center justify-content-center">
                   <div class="col-4 align-self-center w-75 h-100">
-                    <div id="visualizza-elenco-tappe-viaggio-titolo" class="row
-                      align-items-start justify-content-center border
-                      side-bar-title text-white">
-                      <div id="visualizza-nome-viaggio" class="col-8 d-flex
-                        shadow w-40 h-100
-                        align-items-center justify-content-center m-0 p-0">
+                    <div id="visualizza-elenco-tappe-viaggio-titolo" class="row align-items-start justify-content-center border side-bar-title text-white">
+                      <div id="visualizza-nome-viaggio" class="col-8 d-flex shadow w-40 h-100 align-items-center justify-content-center m-0 p-0">
                         <p class="d-block m-0 text-white">{{nomeViaggio}}</p>
                       </div>
-                      <div class="col-4 shadow w-30 h-100 d-flex
-                        align-items-center justify-content-center m-0 p-0">
-                        <button class="btn btn-primary h-100 w-100"
-                          v-on:click="modificaTappe()">Modifica Viaggio</button>
+                      <div class="col-4 shadow w-30 h-100 d-flex align-items-center justify-content-center m-0 p-0">
+                        <button class="btn btn-primary h-100 w-100" v-on:click="modificaTappe()">Modifica Viaggio</button>
                       </div>
                     </div>
-                    <div class="row justify-content-center overflow-auto
-                      side-bar-infos">
-                      <div class="col gx-0 d-flex justify-content-center border
-                        h-100">
-                        <p class="m-0 d-flex align-items-center text-white">mezzo
-                          utilizzato: {{mezzo}}</p>
+                    <div class="row justify-content-center overflow-auto side-bar-infos">
+                      <div class="col gx-0 d-flex justify-content-center border h-100">
+                        <p class="m-0 d-flex align-items-center text-white">mezzo utilizzato: {{mezzo}}</p>
                       </div>
                     </div>
-                    <div class="row row-cols-1 justify-content-center
-                      overflow-auto side-bar-content">
-                      <div v-bind:id="'tappa-' + tappa.idTappa"
-                        class="side-bar-travel elenco-tappe" v-for="tappa in
-                        tappe" v-on:click="EvidenziaTappa(tappa.idTappa)">
-                        <div v-bind:id="'container-tappa-' + tappa.idTappa"
-                          class="row row-cols h-100 container-tappa">
-                          <div class="col-1 shadow border d-flex
-                            align-items-center justify-content-center">
+                    <div class="row row-cols-1 justify-content-center overflow-auto side-bar-content">
+                      <div v-bind:id="'visualizza-tappa-' + tappa.idTappa" class="side-bar-travel elenco-tappe" v-for="tappa in tappe" v-on:click="evidenziaTappa(tappa.idTappa)" >
+                        <div v-bind:id="'visualizza-container-tappa-' + tappa.idTappa" class="row row-cols h-100 container-tappa" >
+                          <div class="col-1 shadow border d-flex align-items-center justify-content-center">
                             <p class="m-0">{{tappa.idTappa}}</p>
                           </div>
                           <div class="col-7 row shadow border gx-0">
-                            <div class="col h-100 w-50 d-flex align-items-center
-                              justify-content-center">
+                            <div class="col h-100 w-50 d-flex align-items-center justify-content-center">
                               <p class="m-0">lat:{{tappa.coordinates[0]|formatNumber}}</p>
                             </div>
-                            <div class="col h-100 w-50 d-flex align-items-center
-                              justify-content-center">
+                            <div class="col h-100 w-50 d-flex align-items-center justify-content-center">
                               <p class="m-0">lnt:{{tappa.coordinates[1]|formatNumber}}</p>
                             </div>
                           </div>
-                          <div class="col-4 shadow border d-flex
-                            align-items-center justify-content-center">
-                            <p class="m-0"> {{tappa.checkText}}</p>
+                          <div class="col-4 shadow border d-flex align-items-center justify-content-center">
+                            <p class="m-0">{{tappa.checkText}}</p>
                           </div>
                         </div>
 
-                        <div v-bind:id="'container-modifica-tappa-' +
-                          tappa.idTappa" class="row row-cols h-100
-                          container-modifica-tappa">
-                          <div class="col-1 shadow border d-flex
-                            align-items-center justify-content-center">
+                        <div v-bind:id="'container-modifica-tappa-' +tappa.idTappa" class="row row-cols h-100 container-modifica-tappa">
+                          <div class="col-1 shadow border d-flex align-items-center justify-content-center">
                             <p class="m-0">{{tappa.idTappa}}</p>
                           </div>
-                          <div class="col-lg-11 row row-cols-1 shadow border
-                            h-100
-                            gx-0">
-                            <div class="col h-25 w-100 d-flex align-items-center
-                              justify-content-center">
+                          <div class="col-lg-11 row row-cols-1 shadow border h-100 gx-0">
+                            <div class="col h-25 w-100 d-flex align-items-center justify-content-center">
                               <div class="input-group-prepend">
-                                <span class="input-group-text"
-                                  id="basic-addon3">Latitudine:</span>
+                                <span class="input-group-text" id="basic-addon3">Latitudine:</span>
                               </div>
-                              <input v-bind:id="'lat-tappa-' + tappa.idTappa"
-                                type="text" class="form-control"
-                                placeholder="Lat" aria-label="12.12345"
-                                aria-describedby="basic-addon3">
+                              <input v-bind:id="'lat-tappa-' + tappa.idTappa" type="text" class="form-control" placeholder="Lat" aria-label="12.12345" aria-describedby="basic-addon3" />
                             </div>
-                            <div class="col h-25 w-100 d-flex align-items-center
-                              justify-content-center">
+                            <div class="col h-25 w-100 d-flex align-items-center justify-content-center">
                               <div class="input-group-prepend">
-                                <span class="input-group-text"
-                                  id="basic-addon2">Longitudine:</span>
+                                <span class="input-group-text" id="basic-addon2">Longitudine:</span>
                               </div>
-                              <input v-bind:id="'lng-tappa-' + tappa.idTappa"
-                                type="text" class="form-control"
-                                placeholder="Lng" aria-label="12.12345"
-                                aria-describedby="basic-addon2">
+                              <input v-bind:id="'lng-tappa-' + tappa.idTappa" type="text" class="form-control" placeholder="Lng" aria-label="12.12345" aria-describedby="basic-addon2" />
                             </div>
-                            <div class="col h-25 w-100 d-flex align-items-center
-                              justify-content-center">
+                            <div class="col h-25 w-100 d-flex align-items-center justify-content-center">
                               <div class="input-group-prepend">
                                 <div class="input-group-text">
-                                  <input v-bind:id="'check-tappa-' +
-                                    tappa.idTappa" type="checkbox"
-                                    aria-label="Segna punto come importante">
+                                  <input
+                                    v-bind:id="'check-tappa-' +
+                                    tappa.idTappa"
+                                    type="checkbox"
+                                    aria-label="Segna punto come importante"
+                                  />
                                 </div>
                               </div>
-                              <input v-bind:id="'check-text-tappa-' +
-                                tappa.idTappa" type="text" class="form-control"
-                                placeholder="Note per il punto" aria-label="Text
-                                input with checkbox"></div>
-                            <div class="col h-25 w-50 d-flex align-items-center
-                              justify-content-center">
-                              <input type="button" class="btn btn-primary"
-                                value="Indietro"
-                                v-on:click="cancellaPunto($event,tappa.idTappa)">
+                              <input v-bind:id="'check-text-tappa-' + tappa.idTappa" type="text" class="form-control" placeholder="Note per il punto" aria-label="Text input with checkbox"/>
                             </div>
-                            <div class="col h-25 w-50 d-flex align-items-center
-                              justify-content-center">
-                              <input type="button" class="btn btn-primary"
-                                value="Salva"
-                                v-on:click="SalvaModificaPunto($event,tappa.idTappa)">
+                            <div class="col h-25 w-50 d-flex align-items-center justify-content-center">
+                              <input type="button" class="btn btn-primary" value="Indietro" v-on:click="cancellaPunto(tappa.idTappa)" />
+                            </div>
+                            <div class="col h-25 w-50 d-flex align-items-center justify-content-center">
+                              <input type="button" class="btn btn-primary" value="Salva" v-on:click="salvaModificaPunto(tappa.idTappa)" />
                             </div>
                           </div>
                         </div>
                       </div>
-
-
                     </div>
-                    <div class="row align-items-start justify-content-center
-                      border
-                      side-bar-footer text-white">
-                      <div class="col shadow h-100 d-flex align-items-center
-                        justify-content-center m-0 p-0"><button class="btn
-                          btn-primary h-100 w-100" v-on:click="tornaAViaggi()">Torna
-                          ai viaggi</button>
-                      </div>
+                    <div class="row align-items-start justify-content-center border side-bar-footer text-white">
+                      <div class="col shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><button class="btn btn-primary h-100 w-100" v-on:click="tornaAViaggi()">Torna ai viaggi</button></div>
                     </div>
                   </div>
                 </div>
               </div>
-
             </div>
-
           </div>
         </div>
-
       </main>
 
-
-      <footer class="d-flex flex-wrap justify-content-between fixed-bottom
-        sticky-top align-items-center py-1">
+      <footer class="d-flex flex-wrap justify-content-between fixed-bottom sticky-top align-items-center py-1">
         <div class="col-md-4 d-flex align-items-center">
-          <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none
-            lh-1">
-            <svg class="bi" width="30" height="24"><use
-                xlink:href="#bootstrap"></use></svg>
+          <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
+            <svg class="bi" width="30" height="24"><use xlink:href="#bootstrap"></use></svg>
           </a>
-          <span class="text-muted">© 2021 Company, Inc</span>
+          <span class="text-muted">Made by Matteo Billè</span>
         </div>
-
-        <ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
-          <li class="ms-3"><a class="text-muted" href="#"><svg class="bi"
-                width="24" height="24"><use xlink:href="#twitter"></use></svg></a></li>
-          <li class="ms-3"><a class="text-muted" href="#"><svg class="bi"
-                width="24" height="24"><use xlink:href="#instagram"></use></svg></a></li>
-          <li class="ms-3"><a class="text-muted" href="#"><svg class="bi"
-                width="24" height="24"><use xlink:href="#facebook"></use></svg></a></li>
-        </ul>
       </footer>
     </div>
   </body>

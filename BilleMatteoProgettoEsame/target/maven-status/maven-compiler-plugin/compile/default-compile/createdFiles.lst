@@ -1,7 +1,0 @@
-it\units\signup\loginRestServlet.class
-it\units\travelshandler\sqliteConnection.class
-it\units\travelshandler\Debug.class
-it\units\travelshandler\RestApplicationConfig.class
-it\units\travelshandler\JWTFilter.class
-it\units\travelshandler\RestServlet.class
-it\units\signup\SignUpRestServlet.class

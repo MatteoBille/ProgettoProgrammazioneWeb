@@ -7,11 +7,11 @@ import java.sql.SQLException;
 public class sqliteConnection {
 
 
-    public static Connection connect() {
+    public static Connection connect(String urlDatabase) {
         Connection c=null;
             try {
                 Class.forName("org.sqlite.JDBC");
-                String dbURL = "jdbc:sqlite:C:\\Users\\Billo\\Desktop\\DbProgrammazioneWeb.db";
+                String dbURL = "jdbc:sqlite:"+urlDatabase;
                 c = DriverManager.getConnection(dbURL);
 
 

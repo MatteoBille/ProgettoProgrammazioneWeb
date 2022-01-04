@@ -12,10 +12,6 @@
       <param-name>jersey.config.server.provider.packages</param-name>
       <param-value>it.units.travelshandler</param-value>
     </init-param>
-    <init-param>
-      <param-name>javax.ws.rs.Application</param-name>
-       <param-value>it.units.travelshandler.RestApplicationConfig</param-value>
-    </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
 
@@ -53,4 +49,10 @@
     <servlet-name>Jersey REST Service login</servlet-name>
     <url-pattern>/apiLogin/*</url-pattern>
   </servlet-mapping>
+
+<!-- Modificare il valore del parametro indicando il path assoluto della posizione del database nel PC-->
+  <context-param>
+    <param-name>DatabaseUrl</param-name>
+    <param-value>C:\\Users\\Billo\\Documents\\Matteo\\Universita\\A.A.21-22\\DbProgrammazioneWeb.db</param-value>
+  </context-param>
 </web-app>
