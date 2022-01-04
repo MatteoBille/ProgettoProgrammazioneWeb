@@ -11,6 +11,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.*;
 import java.sql.*;
+import java.time.Duration;
 import java.time.Instant;
 import javax.servlet.ServletContext;
 import javax.xml.bind.DatatypeConverter;
@@ -38,8 +39,7 @@ public class RestServlet {
         Connection conn = sqliteConnection.connect(urlConnection);
 
 
-        JSONArray geoJsonResponse = new JSONArray();
-        JSONObject response= new JSONObject();
+        JSONArray geoJsonResponseArray = new JSONArray();
 
 
 
@@ -54,16 +54,14 @@ public class RestServlet {
             while (rs.next()) {
                 JSONObject jsonObject = new JSONObject(rs.getString("GeoJsonData"));
                 jsonObject.put("id",Integer.toString(rs.getInt("idViaggio")));
-                geoJsonResponse.put(jsonObject);
+                geoJsonResponseArray.put(jsonObject);
             }
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
 
-        response.put("geoJson",geoJsonResponse);
-
-
+        JSONObject response = new JSONObject();
         try (Statement stmt = conn.createStatement()) {
 
             ResultSet rs = stmt.executeQuery(selectMaxIdViaggio);
@@ -76,6 +74,9 @@ public class RestServlet {
         }
         conn.close();
         String newToken= SetToken(auth.split(" ")[1],Integer.parseInt(idUser));
+
+
+        response.put("geoJsons",geoJsonResponseArray);
         response.put("jwtToken",newToken);
         return Response.ok(response.toString().replaceAll("\\\\","")).build();
     }
@@ -100,7 +101,7 @@ public class RestServlet {
 
         JSONObject jsonRequest=new JSONObject(requestBody);
         String id = jsonRequest.getString("id");
-        JSONObject jsonResponse=new JSONObject();
+        JSONObject geoJsonResponse=new JSONObject();
         String insertIntoViaggiNewTravel = "INSERT INTO Viaggi VALUES("+id+","+idUser+",'"+requestBody+"','"+data+"');";
 
         try (Statement stmt = conn.createStatement()) {
@@ -112,8 +113,8 @@ public class RestServlet {
         String querySelect = "SELECT idViaggio,GeoJsonData FROM Viaggi WHERE idViaggio="+id+";";
         try (Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(querySelect);
-            jsonResponse= new JSONObject(rs.getString("GeoJsonData"));
-            jsonResponse.put("id",Integer.toString(rs.getInt("idViaggio")));
+            geoJsonResponse= new JSONObject(rs.getString("GeoJsonData"));
+            geoJsonResponse.put("id",Integer.toString(rs.getInt("idViaggio")));
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -121,8 +122,11 @@ public class RestServlet {
 
         conn.close();
         String newToken= SetToken(auth.split(" ")[1],Integer.parseInt(idUser));
-        jsonResponse.put("jwtToken",newToken);
-        return Response.ok(jsonResponse.toString()).build();
+        JSONObject response = new JSONObject();
+
+        response.put("geoJson",geoJsonResponse);
+        response.put("jwtToken",newToken);
+        return Response.ok(response.toString()).build();
     }
 
     @DELETE
@@ -146,7 +150,7 @@ public class RestServlet {
         JSONObject jsonRequest=new JSONObject(requestBody);
         String idViaggio = jsonRequest.getString("id");
 
-        JSONObject jsonResponse=new JSONObject();
+        JSONObject geoJsonResponse=new JSONObject();
 
         String deleteFromViaggiByIdViaggio = "DELETE FROM Viaggi WHERE idViaggio="+idViaggio+";";
 
@@ -156,12 +160,16 @@ public class RestServlet {
             throwables.printStackTrace();
         }
 
-        jsonResponse.put("deleted","ok");
+
 
         conn.close();
         String newToken= SetToken(auth.split(" ")[1],Integer.parseInt(idUser));
-        jsonResponse.put("jwtToken",newToken);
-        return Response.ok(jsonResponse.toString()).build();
+
+        JSONObject response = new JSONObject();
+
+        response.put("deleted","ok");
+        response.put("jwtToken",newToken);
+        return Response.ok(response.toString()).build();
     }
 
     @GET
@@ -182,15 +190,15 @@ public class RestServlet {
         String urlConnection = context.getInitParameter("DatabaseUrl");
         Connection conn = sqliteConnection.connect(urlConnection);
 
-        JSONObject jsonResponse=null;
+        JSONObject geoJsonResponse=null;
 
 
         String selectViaggiByIdViaggio = "SELECT IdViaggio,GeoJsonData FROM Viaggi WHERE idViaggio="+idViaggio+";";
 
         try (Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(selectViaggiByIdViaggio);
-            jsonResponse= new JSONObject(rs.getString("GeoJsonData"));
-            jsonResponse.put("id",Integer.toString(rs.getInt("idViaggio")));
+            geoJsonResponse= new JSONObject(rs.getString("GeoJsonData"));
+            geoJsonResponse.put("id",Integer.toString(rs.getInt("idViaggio")));
 
 
         } catch (SQLException throwables) {
@@ -198,8 +206,13 @@ public class RestServlet {
         }
         conn.close();
         String newToken= SetToken(auth.split(" ")[1],Integer.parseInt(idUser));
-        jsonResponse.put("jwtToken",newToken);
-        return Response.ok(jsonResponse.toString()).build();
+
+        JSONObject response = new JSONObject();
+
+        response.put("geoJson",geoJsonResponse);
+        response.put("jwtToken",newToken);
+
+        return Response.ok(response.toString()).build();
     }
 
     @PUT
@@ -219,7 +232,7 @@ public class RestServlet {
         String urlConnection = context.getInitParameter("DatabaseUrl");
         Connection conn = sqliteConnection.connect(urlConnection);
 
-        JSONObject jsonResponse=null;
+        JSONObject geoJsonResponse=null;
         String updateViaggio = "UPDATE Viaggi SET GeoJsonData ='"+geoJson+"' WHERE idViaggio="+idViaggio+";";
         String selectViaggioByidViaggio = "SELECT IdViaggio,GeoJsonData FROM Viaggi WHERE IdViaggio="+idViaggio+";";
 
@@ -231,8 +244,8 @@ public class RestServlet {
 
         try (Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(selectViaggioByidViaggio);
-            jsonResponse= new JSONObject(rs.getString("GeoJsonData"));
-            jsonResponse.put("id",Integer.toString(rs.getInt("idViaggio")));
+            geoJsonResponse= new JSONObject(rs.getString("GeoJsonData"));
+            geoJsonResponse.put("id",Integer.toString(rs.getInt("idViaggio")));
 
 
         } catch (SQLException throwables) {
@@ -240,8 +253,12 @@ public class RestServlet {
         }
         conn.close();
         String newToken= SetToken(auth.split(" ")[1],Integer.parseInt(idUser));
-        jsonResponse.put("jwtToken",newToken);
-        return Response.ok(jsonResponse.toString()).build();
+
+        JSONObject response = new JSONObject();
+
+        response.put("geoJson",geoJsonResponse);
+        response.put("jwtToken",newToken);
+        return Response.ok(response.toString()).build();
     }
 
 
@@ -289,6 +306,14 @@ public class RestServlet {
         Claims claims = Jwts.parser()
                 .setSigningKey(DatatypeConverter.parseBase64Binary(SECRET_KEY))
                 .parseClaimsJws(jwtOld).getBody();
+
+
+
+
+        Duration remainingTime = Duration.between(claims.getExpiration().toInstant(),Instant.now());
+        if(remainingTime.getSeconds()<300){
+            return jwtOld;
+        }
 
         long nowTime = Instant.now().getEpochSecond();
         long ExpirationTime = nowTime + 900;
