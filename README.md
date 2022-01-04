@@ -24,6 +24,5 @@ Basato su Tomcat 9 e SQLite.
 	- possibilità di modificare/cancellare le tappe con il menù dropdown `Opzioni`.
 	- possibilità di creare una nuova tappa in coda a quelle esistenti sia con il bottone `Aggiungi tappa` sia cliccando nel punto desiderato della mappa.
 	- possibilità di impostare una tappa come importante. Dal dropdown menù  `Opzioni` selezionare `modifica` e mettere il check sulla checkbox, e inoltre possibile aggiungere un piccolo testo da visualizzare nella schermata di visualizzazione.
-	- Possibilità di cambiare nome al viaggio premendo sul bottone `Modifica nome` e successivamente premendo `Salva nome`
-	- Possibilità di cambiare mezzo di trasporto del viaggio premendo sul bottone `Modifica mezzo` e successivamente premendo  `Salva mezzo`
-	-  ***Attenzione***: Il viaggio viene salvato solamente se viene premuto il tasto `Salva e continua a modificare` altrimenti le modifiche non saranno salvate.
+	- Possibilità di cambiare nome al viaggio
+	- Possibilità di cambiare mezzo di trasporto del viaggio
