@@ -10,6 +10,13 @@ let jwtToken = (function(){
       },
       delete:function(){
         token="";
+      },
+      isPresent:function(){
+        if(token===""){
+          return false;
+        }else{
+          return true;
+        }
       }
     }
   }
@@ -17,22 +24,36 @@ let jwtToken = (function(){
 })();
 
 let map = L.map("map").setView([45.624029, 13.789859], 13);
-let geoJsonTemplate = {
-  features: [
-    {
-      geometry: {
-        coordinates: [],
-        type: "LineString",
+
+L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+  attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+  //maxZoom: 18,
+  id: "mapbox/streets-v11",
+  //tileSize: 512,
+  //zoomOffset: -1,
+  accessToken: "pk.eyJ1IjoiYmlsbG85NyIsImEiOiJja3d3Y2V5MGEwMjc5MnZwOGFtdjFxMnV0In0.5Fa8yODvSDsZ1b73O-CwRQ",
+}).addTo(map);
+
+
+
+let geoJsonTemplate = function () {
+  return {
+    features: [
+      {
+        geometry: {
+          coordinates: [],
+          type: "LineString",
+        },
+        type: "Feature",
+        properties: {
+          selected: "no",
+        },
       },
-      type: "Feature",
-      properties: {
-        selected: "no",
-      },
-    },
-  ],
-  id: "",
-  nome: "viaggio2",
-  type: "FeatureCollection",
+    ],
+    id: "",
+    nome: "viaggio",
+    type: "FeatureCollection",
+  };
 };
 
 let puntoImportanteTemplate = function () {
@@ -463,7 +484,6 @@ let ModificaTappe = new Vue({
       }
     },
     cancellaPunto: function (id) {
-      console.log(this.viaggio);
       this.modificato = true;
       this.tappe.splice(id, 1);
       for (let i = 0; i < this.tappe.length; ++i) {
@@ -567,8 +587,7 @@ let ModificaTappe = new Vue({
       container.style.display = "none";
       let modifierContainer = document.querySelector(`#container-modifica-tappa-${id}`);
       modifierContainer.style.display = "flex";
-      console.log("modifica punto");
-      console.log(this.viaggio);
+
     },
     removeMapListener: function () {
       map.off("click");
@@ -610,9 +629,9 @@ let ModificaTappe = new Vue({
       let check = document.getElementById(`check-tappa-${id}`).checked;
       let checkText = document.getElementById(`check-text-tappa-${id}`).value;
 
-      console.log(lat + "  " + lng);
+      
       if (lat === "Nan" || lng === "Nan") {
-        console.log("cancella punto");
+        
         this.cancellaPunto(id);
         return undefined;
       }
@@ -626,7 +645,7 @@ let ModificaTappe = new Vue({
         let puntoImportante = new puntoImportanteTemplate();
 
         if (tappa.idTappa === id) {
-          console.log(lat + " " + lng);
+          
           tappa.coordinates[0] = parseFloat(lat);
           tappa.coordinates[1] = parseFloat(lng);
           tappa.check = check;
@@ -639,7 +658,7 @@ let ModificaTappe = new Vue({
             }
           }
 
-          console.log(tappa);
+          
           if (tappa.check === true) {
             if (exist === false) {
               puntoImportante.id = id;
@@ -664,7 +683,7 @@ let ModificaTappe = new Vue({
         }
       });
 
-      console.log(this.viaggio);
+      
       this.setCorners();
 
       this.$forceUpdate();
@@ -956,8 +975,8 @@ let loginWindows = new Vue({
 
 
 function setAuthHeader(header) {
-  if (jwtToken !== "") {
-    header.Authorization = "Bearer " + jwtToken;
+  if (jwtToken.isPresent) {
+    header.Authorization = "Bearer " + jwtToken.get();
   }
   return header;
 }

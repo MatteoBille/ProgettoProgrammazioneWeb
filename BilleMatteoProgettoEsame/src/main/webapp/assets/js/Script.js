@@ -10,6 +10,13 @@ let jwtToken = (function(){
       },
       delete:function(){
         token="";
+      },
+      isPresent:function(){
+        if(token===""){
+          return false;
+        }else{
+          return true;
+        }
       }
     }
   }
@@ -477,7 +484,6 @@ let ModificaTappe = new Vue({
       }
     },
     cancellaPunto: function (id) {
-      console.log(this.viaggio);
       this.modificato = true;
       this.tappe.splice(id, 1);
       for (let i = 0; i < this.tappe.length; ++i) {
@@ -581,8 +587,7 @@ let ModificaTappe = new Vue({
       container.style.display = "none";
       let modifierContainer = document.querySelector(`#container-modifica-tappa-${id}`);
       modifierContainer.style.display = "flex";
-      console.log("modifica punto");
-      console.log(this.viaggio);
+
     },
     removeMapListener: function () {
       map.off("click");
@@ -624,9 +629,9 @@ let ModificaTappe = new Vue({
       let check = document.getElementById(`check-tappa-${id}`).checked;
       let checkText = document.getElementById(`check-text-tappa-${id}`).value;
 
-      console.log(lat + "  " + lng);
+      
       if (lat === "Nan" || lng === "Nan") {
-        console.log("cancella punto");
+        
         this.cancellaPunto(id);
         return undefined;
       }
@@ -640,7 +645,7 @@ let ModificaTappe = new Vue({
         let puntoImportante = new puntoImportanteTemplate();
 
         if (tappa.idTappa === id) {
-          console.log(lat + " " + lng);
+          
           tappa.coordinates[0] = parseFloat(lat);
           tappa.coordinates[1] = parseFloat(lng);
           tappa.check = check;
@@ -653,7 +658,7 @@ let ModificaTappe = new Vue({
             }
           }
 
-          console.log(tappa);
+          
           if (tappa.check === true) {
             if (exist === false) {
               puntoImportante.id = id;
@@ -678,7 +683,7 @@ let ModificaTappe = new Vue({
         }
       });
 
-      console.log(this.viaggio);
+      
       this.setCorners();
 
       this.$forceUpdate();
@@ -970,8 +975,8 @@ let loginWindows = new Vue({
 
 
 function setAuthHeader(header) {
-  if (jwtToken !== "") {
-    header.Authorization = "Bearer " + jwtToken;
+  if (jwtToken.isPresent) {
+    header.Authorization = "Bearer " + jwtToken.get();
   }
   return header;
 }
