@@ -18,7 +18,7 @@ import java.util.Base64;
 import java.util.List;
 
 @Path("/login")
-public class loginRestServlet {
+public class LoginRestServlet {
 
     private final String SECRET_KEY = "Yn2kjibddFAWtnPJ2AFlL8WXmohJMCvigQggaEypa5E=";
 

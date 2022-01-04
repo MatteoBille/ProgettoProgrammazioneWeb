@@ -1,6 +1,34 @@
-let jwtToken = "";
+let jwtToken = (function(){
+  let token="";
+  let func = function(){
+    return {
+      set:function(newToken){
+        token=newToken;
+      },
+      get:function(){
+        return token;
+      },
+      delete:function(){
+        token="";
+      }
+    }
+  }
+  return func();
+})();
 
 let map = L.map("map").setView([45.624029, 13.789859], 13);
+
+L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+  attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+  //maxZoom: 18,
+  id: "mapbox/streets-v11",
+  //tileSize: 512,
+  //zoomOffset: -1,
+  accessToken: "pk.eyJ1IjoiYmlsbG85NyIsImEiOiJja3d3Y2V5MGEwMjc5MnZwOGFtdjFxMnV0In0.5Fa8yODvSDsZ1b73O-CwRQ",
+}).addTo(map);
+
+
+
 let geoJsonTemplate = function () {
   return {
     features: [
@@ -21,7 +49,7 @@ let geoJsonTemplate = function () {
   };
 };
 
-let puntoImportanteTeplate = function () {
+let puntoImportanteTemplate = function () {
   return {
     type: "Feature",
     properties: {},
@@ -33,14 +61,6 @@ let puntoImportanteTeplate = function () {
   };
 };
 
-L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
-  attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-  //maxZoom: 18,
-  id: "mapbox/streets-v11",
-  //tileSize: 512,
-  //zoomOffset: -1,
-  accessToken: "pk.eyJ1IjoiYmlsbG85NyIsImEiOiJja3d3Y2V5MGEwMjc5MnZwOGFtdjFxMnV0In0.5Fa8yODvSDsZ1b73O-CwRQ",
-}).addTo(map);
 
 let geoJsonLayer = L.geoJSON();
 let circles = L.featureGroup();
@@ -48,6 +68,8 @@ let cornersItalia = {
   latlngMax: [47.028253, 4.819799],
   latlngMIn: [36.561942, 19.391921],
 };
+
+
 let ElencoViaggi = new Vue({
   el: "#elenco-viaggi-giornata",
   data: {
@@ -79,7 +101,7 @@ let ElencoViaggi = new Vue({
       })
         .then((response) => response.json())
         .then((data) => {
-          jwtToken = data.jwtToken;
+          jwtToken.set(data.jwtToken);
           this.viaggi.push(data.geoJson);
           this.modificaTappe(data.geoJson.id);
         });
@@ -143,7 +165,7 @@ let ElencoViaggi = new Vue({
       })
         .then((response) => response.json())
         .then((data) => {
-          jwtToken = data.jwtToken;
+          jwtToken.set(data.jwtToken);
           pulisciMappa();
           this.retrieveData();
         });
@@ -202,7 +224,7 @@ let ElencoViaggi = new Vue({
         .then((response) => response.json())
         .then((data) => {
           if (data.message !== "NotAccepted") {
-            jwtToken = data.jwtToken;
+            jwtToken.set(data.jwtToken);
             this.viaggi = data.geoJsons;
             this.nextId = data.id + 1;
             this.totalCorners = cornersItalia;
@@ -335,7 +357,7 @@ let ElencoTappe = new Vue({
         .then((response) => response.json())
         .then((data) => {
           if (data.message !== "NotAccepted") {
-            jwtToken = data.jwtToken;
+            jwtToken.set(data.jwtToken);
             this.viaggio = data.geoJson;
             this.mezzo = data.geoJson.mezzo;
             this.nomeViaggio = data.geoJson.nome;
@@ -576,7 +598,7 @@ let ModificaTappe = new Vue({
         .then((response) => response.json())
         .then((data) => {
           if (data.message !== "NotAccepted") {
-            jwtToken = data.jwtToken;
+            jwtToken.set(data.jwtToken);
             this.viaggio = data.geoJson;
             this.nomeViaggio = data.geoJson.nome;
             this.mezzo = data.geoJson.mezzo;
@@ -684,7 +706,7 @@ let ModificaTappe = new Vue({
       })
         .then((response) => response.json())
         .then((data) => {
-          jwtToken = data.jwtToken;
+          jwtToken.set(data.jwtToken);
           this.modificato = false;
           this.tornaAVisualizzazione();
         });
@@ -815,7 +837,7 @@ let SignUpLoginButtons = new Vue({
       });
 
       document.querySelector("#logout").style.display = "none";
-      jwtToken = "";
+      jwtToken.delete();
       pulisciCerchi();
       pulisciMappa();
     },
@@ -877,7 +899,7 @@ let loginWindows = new Vue({
         .then((response) => response.json())
         .then((data) => {
           if (data.message === "Accepted") {
-            jwtToken = data.jwtToken;
+            jwtToken.set(data.jwtToken);
             SignUpLoginButtons.showLogoutButton();
             this.mostraViaggi();
             //ElencoViaggi.setThisDay();
@@ -922,7 +944,7 @@ let loginWindows = new Vue({
         })
           .then((response) => response.json())
           .then((data) => {
-            jwtToken = data.jwtToken;
+            jwtToken.set(data.jwtToken);
 
             this.mostraViaggi();
             ElencoViaggi.retrieveData();
@@ -945,6 +967,7 @@ let loginWindows = new Vue({
     },
   },
 });
+
 
 function setAuthHeader(header) {
   if (jwtToken !== "") {
