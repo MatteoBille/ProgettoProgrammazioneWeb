@@ -8,7 +8,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.ws.rs.*;
-import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.*;
 import java.sql.*;
 import java.time.Duration;
@@ -26,13 +25,13 @@ public class RestServlet {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getTravels( @QueryParam("data") String data,@HeaderParam("Authorization") String auth) throws SQLException {
         String idUser="";
-        if(auth != null && auth.split(" ")[0].equals("Bearer")){
+        if(auth != null && auth.split(" ")[0].equals("Bearer")) {
             idUser = checkJwt(auth.split(" ")[1]);
             if(idUser == null){
-                return Response.ok("{\"message\":\"NotAccepted\"} utente non trovato").build();
+                return Response.status(Response.Status.NOT_ACCEPTABLE).entity("token is refereed to a not existing user").build();
             }
         }else{
-            return Response.ok("{\"message\":\"NotAccepted\"}").build();
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Authentication token not present").build();
         }
 
         String urlConnection = context.getInitParameter("DatabaseUrl");
@@ -85,13 +84,13 @@ public class RestServlet {
     public Response addTravel(@QueryParam("data") String data,@HeaderParam("Authorization") String auth,String requestBody) throws SQLException {
 
         String idUser="";
-        if(auth != null && auth.split(" ")[0].equals("Bearer")){
+        if(auth != null && auth.split(" ")[0].equals("Bearer")) {
             idUser = checkJwt(auth.split(" ")[1]);
             if(idUser == null){
-                return Response.ok("{\"message\":\"NotAccepted\"}").build();
+                return Response.status(Response.Status.NOT_ACCEPTABLE).entity("token is refereed to a not existing user").build();
             }
         }else{
-            return Response.ok("{\"message\":\"NotAccepted\"}").build();
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Authentication token not present").build();
         }
 
         String urlConnection = context.getInitParameter("DatabaseUrl");
@@ -136,12 +135,11 @@ public class RestServlet {
         if(auth != null && auth.split(" ")[0].equals("Bearer")) {
             idUser = checkJwt(auth.split(" ")[1]);
             if(idUser == null){
-                return Response.ok("{\"message\":\"NotAccepted\"}").build();
+                return Response.status(Response.Status.NOT_ACCEPTABLE).entity("token is refereed to a not existing user").build();
             }
         }else{
-            return Response.ok("{\"message\":\"NotAccepted\"}").build();
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Authentication token not present").build();
         }
-
 
         String urlConnection = context.getInitParameter("DatabaseUrl");
         Connection conn = sqliteConnection.connect(urlConnection);
@@ -180,10 +178,10 @@ public class RestServlet {
         if(auth != null && auth.split(" ")[0].equals("Bearer")) {
             idUser = checkJwt(auth.split(" ")[1]);
             if(idUser == null){
-                return Response.ok("{\"message\":\"NotAccepted\"}").build();
+                return Response.status(Response.Status.NOT_ACCEPTABLE).entity("token is refereed to a not existing user").build();
             }
         }else{
-            return Response.ok("{\"message\":\"NotAccepted\"}").build();
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Authentication token not present").build();
         }
 
 
@@ -223,10 +221,10 @@ public class RestServlet {
         if(auth != null && auth.split(" ")[0].equals("Bearer")) {
             idUser = checkJwt(auth.split(" ")[1]);
             if(idUser == null){
-                return Response.ok("{\"message\":\"NotAccepted\"}").build();
+                return Response.status(Response.Status.NOT_ACCEPTABLE).entity("token is refereed to a not existing user").build();
             }
         }else{
-            return Response.ok("{\"message\":\"NotAccepted\"}").build();
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Authentication token not present").build();
         }
 
         String urlConnection = context.getInitParameter("DatabaseUrl");

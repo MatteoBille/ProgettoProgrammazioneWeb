@@ -111,7 +111,8 @@ let ElencoViaggi = new Vue({
           jwtToken.set(data.jwtToken);
           this.viaggi.push(data.geoJson);
           this.modificaTappe(data.geoJson.id);
-        });
+        })
+        .catch(err => console.log(err));
     },
     changeDateFormatting: function (date) {
       date = date.replace(/-/g, "/");
@@ -175,7 +176,8 @@ let ElencoViaggi = new Vue({
           jwtToken.set(data.jwtToken);
           pulisciMappa();
           this.retrieveData();
-        });
+        })
+        .catch(err => console.log(err));
     },
     evidenziaViaggio: function (id) {
       this.viaggi.forEach(function (viaggio) {
@@ -230,15 +232,14 @@ let ElencoViaggi = new Vue({
       })
         .then((response) => response.json())
         .then((data) => {
-          if (data.message !== "NotAccepted") {
             jwtToken.set(data.jwtToken);
             this.viaggi = data.geoJsons;
             this.nextId = data.id + 1;
             this.totalCorners = cornersItalia;
             this.setCorners();
             this.disegnaViaggio();
-          }
-        });
+        })
+        .catch(err => console.log(err));
     },
     setCorners: function () {
       let latMax = -92;
@@ -363,7 +364,6 @@ let ElencoTappe = new Vue({
       })
         .then((response) => response.json())
         .then((data) => {
-          if (data.message !== "NotAccepted") {
             jwtToken.set(data.jwtToken);
             this.viaggio = data.geoJson;
             this.mezzo = data.geoJson.mezzo;
@@ -371,8 +371,8 @@ let ElencoTappe = new Vue({
             this.setTappe();
             this.setCorners();
             this.disegnaViaggio();
-          }
-        });
+        })
+        .catch(err => console.log(err));
     },
     setCorners: function () {
       let latMax = -92;
@@ -602,7 +602,6 @@ let ModificaTappe = new Vue({
       })
         .then((response) => response.json())
         .then((data) => {
-          if (data.message !== "NotAccepted") {
             jwtToken.set(data.jwtToken);
             this.viaggio = data.geoJson;
             this.nomeViaggio = data.geoJson.nome;
@@ -611,8 +610,8 @@ let ModificaTappe = new Vue({
             this.setTappe();
             this.setCorners();
             this.disegnaViaggio();
-          }
-        });
+        })
+        .catch(err => console.log(err));
     },
     salvaModificaMezzo: function () {
       this.mezzo = document.querySelector("#nuovo-mezzo-viaggio").value;
@@ -714,7 +713,8 @@ let ModificaTappe = new Vue({
           jwtToken.set(data.jwtToken);
           this.modificato = false;
           this.tornaAVisualizzazione();
-        });
+        })
+        .catch(err => console.log(err));
     },
     setCorners: function () {
       let latMax = -92;
@@ -914,7 +914,8 @@ let loginWindows = new Vue({
             document.querySelector("#password").value = "";
             return "";
           }
-        });
+        })
+        .catch(err => console.log(err));
 
       document.querySelector("#name").value = "";
       document.querySelector("#password").value = "";
@@ -953,7 +954,8 @@ let loginWindows = new Vue({
 
             this.mostraViaggi();
             ElencoViaggi.retrieveData();
-          });
+          })
+          .catch(err => console.log(err));
       } else {
         alert("Le password non corrispondono");
         document.querySelector("#repeatpasswordsignup").value = "";
