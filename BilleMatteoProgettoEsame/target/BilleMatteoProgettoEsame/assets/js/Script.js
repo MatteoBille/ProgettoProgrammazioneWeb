@@ -204,6 +204,12 @@ let travelList = new Vue({
       editStage.retrieveData(id);
     },
     goToStagesList: function (id) {
+      geoJsonLayer.addData(this.viaggi).addTo(map);
+      clearGeoJsonLayer();
+      clearCirclesLayer();
+      
+
+
       divViaggi = document.getElementById("elenco-viaggi-giornata");
       divViaggi.style.display = "none";
       diveditStage = document.getElementById("modifica-elenco-tappe-viaggio");
@@ -214,8 +220,9 @@ let travelList = new Vue({
       this.viaggi.forEach(function (viaggio) {
         viaggio.features[0].properties.selected = "no";
       });
-      clearGeoJsonLayer();
+      
       stagesList.retrieveData(id);
+     
     },
     retrieveData: function () {
       let date = this.changeDateFormatting(this.date);
@@ -299,7 +306,6 @@ let stagesList = new Vue({
   },
   methods: {
     drawTravel: function () {
-      //geoJsonLayer = L.geoJSON();
       var myStyle = { color: "#1766EB", weight: 3 };
 
       if (this.tappe.length !== 0) {
@@ -308,7 +314,8 @@ let stagesList = new Vue({
         map.fitBounds([cornersItalia.latlngMax, cornersItalia.latlngMin]);
       }
       map.fitBounds([this.viaggio.corners.latlngMax, this.viaggio.corners.latlngMin]);
-
+      clearGeoJsonLayer();
+      clearCirclesLayer();
       geoJsonLayer.addData(this.viaggio).addTo(map);
       geoJsonLayer.eachLayer(function (layer) {
         if (layer.feature.geometry.coordinates.length != 0 && layer.feature.geometry.type === "LineString") {
@@ -522,7 +529,6 @@ let editStage = new Vue({
       this.drawTravel();
     },
     drawTravel: function () {
-      //geoJsonLayer = L.geoJSON();
       var myStyle = { color: "#1766EB", weight: 3 };
       geoJsonLayer.addData(this.viaggio).addTo(map);
       geoJsonLayer.eachLayer(function (layer) {
@@ -876,18 +882,6 @@ let SignUpLoginLogoutButtons = new Vue({
       document.querySelector("#logout").style.display = "none";
       document.querySelector("#right-side-container").style.display = "none";
     },
-    clearCirclesLayer: function () {
-      if (map.hasLayer(circles)) {
-        map.removeLayer(circles);
-        circles = L.featureGroup();
-      }
-    },
-    clearGeoJsonLayer: function () {
-      if (map.hasLayer(geoJsonLayer)) {
-        geoJsonLayer.removeFrom(map);
-        geoJsonLayer = L.geoJSON();
-      }
-    },
   },
 });
 
@@ -1008,9 +1002,9 @@ function setAuthHeader(header) {
 }
 
 function clearGeoJsonLayer() {
+  console.log(map.hasLayer(geoJsonLayer));
   if (map.hasLayer(geoJsonLayer)) {
-    geoJsonLayer.removeFrom(map);
-    geoJsonLayer = L.geoJSON();
+    geoJsonLayer.clearLayers();
   }
 }
 
