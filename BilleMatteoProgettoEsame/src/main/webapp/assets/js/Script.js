@@ -999,7 +999,6 @@ function setAuthHeader(header) {
 }
 
 function clearGeoJsonLayer() {
-  console.log(map.hasLayer(geoJsonLayer));
   if (map.hasLayer(geoJsonLayer)) {
     geoJsonLayer.clearLayers();
   }
