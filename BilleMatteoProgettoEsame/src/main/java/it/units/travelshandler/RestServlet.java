@@ -8,7 +8,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.ws.rs.*;
-import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.*;
 import java.sql.*;
 import java.time.Duration;
@@ -26,13 +25,14 @@ public class RestServlet {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getTravels( @QueryParam("data") String data,@HeaderParam("Authorization") String auth) throws SQLException {
         String idUser="";
-        if(auth != null && auth.split(" ")[0].equals("Bearer")){
-            idUser = checkJwt(auth.split(" ")[1]);
-            if(idUser == null){
-                return Response.ok("{\"message\":\"NotAccepted\"} utente non trovato").build();
+        if(auth != null && auth.split(" ")[0].equals("Bearer")) {
+            try {
+                idUser = checkJwt(auth.split(" ")[1]);
+            } catch (Exception e) {
+                return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"invalid_token\"}").build();
             }
         }else{
-            return Response.ok("{\"message\":\"NotAccepted\"}").build();
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"Authentication token not present\"}").build();
         }
 
         String urlConnection = context.getInitParameter("DatabaseUrl");
@@ -80,18 +80,20 @@ public class RestServlet {
         response.put("jwtToken",newToken);
         return Response.ok(response.toString().replaceAll("\\\\","")).build();
     }
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response addTravel(@QueryParam("data") String data,@HeaderParam("Authorization") String auth,String requestBody) throws SQLException {
 
         String idUser="";
-        if(auth != null && auth.split(" ")[0].equals("Bearer")){
-            idUser = checkJwt(auth.split(" ")[1]);
-            if(idUser == null){
-                return Response.ok("{\"message\":\"NotAccepted\"}").build();
+        if(auth != null && auth.split(" ")[0].equals("Bearer")) {
+            try {
+                idUser = checkJwt(auth.split(" ")[1]);
+            } catch (Exception e) {
+                return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"invalid_token\"}").build();
             }
         }else{
-            return Response.ok("{\"message\":\"NotAccepted\"}").build();
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"Authentication token not present\"}").build();
         }
 
         String urlConnection = context.getInitParameter("DatabaseUrl");
@@ -134,14 +136,14 @@ public class RestServlet {
     public Response deleteTravel(String requestBody,@HeaderParam("Authorization") String auth) throws SQLException {
         String idUser="";
         if(auth != null && auth.split(" ")[0].equals("Bearer")) {
-            idUser = checkJwt(auth.split(" ")[1]);
-            if(idUser == null){
-                return Response.ok("{\"message\":\"NotAccepted\"}").build();
+            try {
+                idUser = checkJwt(auth.split(" ")[1]);
+            } catch (Exception e) {
+                return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"invalid_token\"}").build();
             }
         }else{
-            return Response.ok("{\"message\":\"NotAccepted\"}").build();
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"Authentication token not present\"}").build();
         }
-
 
         String urlConnection = context.getInitParameter("DatabaseUrl");
         Connection conn = sqliteConnection.connect(urlConnection);
@@ -178,12 +180,14 @@ public class RestServlet {
     public Response getTravelById(@PathParam("id") int idViaggio,@HeaderParam("Authorization") String auth) throws SQLException {
         String idUser="";
         if(auth != null && auth.split(" ")[0].equals("Bearer")) {
-            idUser = checkJwt(auth.split(" ")[1]);
-            if(idUser == null){
-                return Response.ok("{\"message\":\"NotAccepted\"}").build();
+            try {
+                idUser = checkJwt(auth.split(" ")[1]);
+            } catch (Exception e) {
+                return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"invalid_token\"}").build();
             }
+
         }else{
-            return Response.ok("{\"message\":\"NotAccepted\"}").build();
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"Authentication token not present\"}").build();
         }
 
 
@@ -221,12 +225,13 @@ public class RestServlet {
     public Response updateTravelById(@PathParam("id") int idViaggio,String geoJson,@HeaderParam("Authorization") String auth) throws SQLException {
         String idUser="";
         if(auth != null && auth.split(" ")[0].equals("Bearer")) {
-            idUser = checkJwt(auth.split(" ")[1]);
-            if(idUser == null){
-                return Response.ok("{\"message\":\"NotAccepted\"}").build();
+            try {
+                idUser = checkJwt(auth.split(" ")[1]);
+            } catch (Exception e) {
+                return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"invalid_token\"}").build();
             }
         }else{
-            return Response.ok("{\"message\":\"NotAccepted\"}").build();
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"Authentication token not present\"}").build();
         }
 
         String urlConnection = context.getInitParameter("DatabaseUrl");
@@ -262,7 +267,7 @@ public class RestServlet {
     }
 
 
-    public String checkJwt(String jwt) {
+    public String checkJwt(String jwt) throws Exception{
         String urlConnection = context.getInitParameter("DatabaseUrl");
 
         Connection conn = sqliteConnection.connect(urlConnection);
@@ -273,7 +278,7 @@ public class RestServlet {
                 .setSigningKey(DatatypeConverter.parseBase64Binary(SECRET_KEY))
                 .parseClaimsJws(jwt).getBody();
         } catch (Exception e) {
-           return null;
+           throw e;
         }
 
         String queryVerificaId = "SELECT NomeUtente FROM Utenti WHERE idUtente=\""+claims.get("idUtente")+"\";";
