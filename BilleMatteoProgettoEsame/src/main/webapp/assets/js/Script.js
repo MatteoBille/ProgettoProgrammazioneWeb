@@ -207,8 +207,6 @@ let travelList = new Vue({
       geoJsonLayer.addData(this.viaggi).addTo(map);
       clearGeoJsonLayer();
       clearCirclesLayer();
-      
-
 
       divViaggi = document.getElementById("elenco-viaggi-giornata");
       divViaggi.style.display = "none";
@@ -220,9 +218,8 @@ let travelList = new Vue({
       this.viaggi.forEach(function (viaggio) {
         viaggio.features[0].properties.selected = "no";
       });
-      
+
       stagesList.retrieveData(id);
-     
     },
     retrieveData: function () {
       let date = this.changeDateFormatting(this.date);

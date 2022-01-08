@@ -18,14 +18,12 @@
     <link href="./assets/css/style.css" rel="stylesheet" />
     <!--Script import-->
     <script src="./assets/js/Script.js" defer></script>
-
-
   </head>
   <body class="text-center vsc-initialized">
     <div class="fixed-top fixed-bottom">
       <!-- Examples Bootstrap-->
       <header class="navbar py-0 shadow px-3 text-white align-content-center">
-        <p class="navbar-brand col-md-3 col-lg-2 me-0" ></p>
+        <p class="navbar-brand col-md-3 col-lg-2 me-0"></p>
         <div id="signUpLoginLogout" class="navbar-nav">
           <div id="signUpLogin" class="text-end">
             <button type="button" class="btn btn-primary me-2 text-nowrap" v-on:click="showLoginForm()">
@@ -170,7 +168,7 @@
                     </div>
 
                     <div class="row row-cols-1 justify-content-cente overflow-auto side-bar-content">
-                      <div v-bind:id="'tappa-' + tappa.idTappa" class="side-bar-travel elenco-tappe" v-for="tappa in tappe" v-on:click="highLightStage(tappa.idTappa)" >
+                      <div v-bind:id="'tappa-' + tappa.idTappa" class="side-bar-travel elenco-tappe" v-for="tappa in tappe" v-on:click="highLightStage(tappa.idTappa)">
                         <div v-bind:id="'container-tappa-' + tappa.idTappa" class="row row-cols h-100 container-tappa">
                           <div class="col-1 shadow border d-flex align-items-center justify-content-center">
                             <p class="m-0">{{tappa.idTappa}}</p>
@@ -218,11 +216,9 @@
                             <div class="col h-25 w-100 d-flex align-items-center justify-content-center">
                               <div class="input-group mb-1 w-75">
                                 <div class="input-group-text">
-                                  <input
-                                    v-bind:id="'check-tappa-'+ tappa.idTappa" class="checkbox" type="checkbox" v-model="tappa.check"/>
+                                  <input v-bind:id="'check-tappa-'+ tappa.idTappa" class="checkbox" type="checkbox" v-model="tappa.check" />
                                 </div>
-                                <input
-                                  v-bind:id="'check-text-tappa-' + tappa.idTappa" type="text" class="form-control" v-model="tappa.checkText" placeholder="Note per il punto" />
+                                <input v-bind:id="'check-text-tappa-' + tappa.idTappa" type="text" class="form-control" v-model="tappa.checkText" placeholder="Note per il punto" />
                               </div>
                             </div>
 
@@ -261,8 +257,8 @@
                       </div>
                     </div>
                     <div class="row row-cols-1 justify-content-center overflow-auto side-bar-content">
-                      <div v-bind:id="'visualizza-tappa-' + tappa.idTappa" class="side-bar-travel elenco-tappe" v-for="tappa in tappe" v-on:click="highLightStage(tappa.idTappa)" >
-                        <div v-bind:id="'visualizza-container-tappa-' + tappa.idTappa" class="row row-cols h-100 container-tappa" >
+                      <div v-bind:id="'visualizza-tappa-' + tappa.idTappa" class="side-bar-travel elenco-tappe" v-for="tappa in tappe" v-on:click="highLightStage(tappa.idTappa)">
+                        <div v-bind:id="'visualizza-container-tappa-' + tappa.idTappa" class="row row-cols h-100 container-tappa">
                           <div class="col-1 shadow border d-flex align-items-center justify-content-center">
                             <p class="m-0">{{tappa.idTappa}}</p>
                           </div>
