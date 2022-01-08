@@ -3,7 +3,7 @@ Creazione di un servizio web per visionare i tragitti svolti durante una determi
 Basato su Tomcat 9 e SQLite.
 # installazione software
 1. Copiare il file .war nella cartella webapp di Tomcat
-2. Aprire il file web.xml e modificare il contextParam inserendo il path assoluto del database SQLite.
+2. Aprire il file web.xml e modificare il contextParam che si trova in fondo al file inserendo il path assoluto del database SQLite.
 3. Aprire il browser sulla pagina http://localhost:8080/BilleMatteoProgettoEsame/
 # Utilizzo
 -  **login o signUp in alto a destra:**
