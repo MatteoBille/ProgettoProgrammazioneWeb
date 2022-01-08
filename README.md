@@ -8,6 +8,7 @@ Basato su Tomcat 9 e SQLite.
 # Utilizzo
 -  **login o signUp in alto a destra:**
 	- Un utente di prova con alcuni viaggi è gia creato Name: admin Password: admin
+		-i viaggi sono presenti nei giorni 3-5 gennaio e 10 gennaio.
 - **Visualizzazione viaggi:**
 	- possibilità di cambiare giorno con i bottoni `+1` e `-1` oppure con il dataPicker;
 	- Possibilità di aggiungere un viaggio con il bottone `Aggiungi viaggio`;
