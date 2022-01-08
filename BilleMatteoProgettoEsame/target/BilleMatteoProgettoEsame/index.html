@@ -122,8 +122,8 @@
                         class="side-bar-travel elenco-viaggi"
                         v-for="viaggio in
                         viaggi"
-                        v-on:load="disegnaViaggio"
-                        v-on:click="evidenziaViaggio(viaggio.id)"
+                        v-on:load="drawTravel"
+                        v-on:click="highlightTravel(viaggio.id)"
                       >
                         <div class="row row-cols h-100">
                           <div class="col-4 gx-0 d-flex justify-content-center border">
@@ -137,8 +137,8 @@
                             <div class="dropdown h-100 w-100">
                               <button class="btn btn-secondary dropdown-toggle operation-button dropdown-button h-100 w-100" type="button" v-bind:id="'button-' + viaggio.id" data-bs-toggle="dropdown" aria-expanded="false">Opzioni</button>
                               <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                <li><a class="dropdown-item" v-on:click="eliminaViaggio(viaggio.id)" href="#">Cancella</a></li>
-                                <li><a class="dropdown-item" v-on:click="mostraTappe(viaggio.id)" href="#">Visualizza</a></li>
+                                <li><a class="dropdown-item" v-on:click="deleteTravel(viaggio.id)" href="#">Cancella</a></li>
+                                <li><a class="dropdown-item" v-on:click="goToStagesList(viaggio.id)" href="#">Visualizza</a></li>
                               </ul>
                             </div>
                           </div>
@@ -146,7 +146,7 @@
                       </div>
                     </div>
                     <div class="row align-items-start justify-content-center border side-bar-footer">
-                      <button type="button" class="btn btn-outline-light h-100 w-100 p-0" v-on:click="aggiungiViaggio()">Aggiungi Viaggio</button>
+                      <button type="button" class="btn btn-outline-light h-100 w-100 p-0" v-on:click="addTravel()">Aggiungi Viaggio</button>
                     </div>
                   </div>
                 </div>
@@ -166,11 +166,11 @@
                       </div>
                     </div>
                     <div class="row align-items-start justify-content-center border side-bar-infos text-white align-content-center">
-                      <a v-bind:href="'#tappa-'+idUltimaTappa" class="btn btn-primary h-100 w-100 p-0 d-flex justify-content-center align-items-center" v-on:click="aggiungiTappaAllaFine()"><p>aggiungi Tappa</p></a>
+                      <a v-bind:href="'#tappa-'+idUltimaTappa" class="btn btn-primary h-100 w-100 p-0 d-flex justify-content-center align-items-center" v-on:click="addStageAtTheEnd()"><p>aggiungi Tappa</p></a>
                     </div>
 
                     <div class="row row-cols-1 justify-content-cente overflow-auto side-bar-content">
-                      <div v-bind:id="'tappa-' + tappa.idTappa" class="side-bar-travel elenco-tappe" v-for="tappa in tappe" v-on:click="evidenziaTappa(tappa.idTappa)" >
+                      <div v-bind:id="'tappa-' + tappa.idTappa" class="side-bar-travel elenco-tappe" v-for="tappa in tappe" v-on:click="highLightStage(tappa.idTappa)" >
                         <div v-bind:id="'container-tappa-' + tappa.idTappa" class="row row-cols h-100 container-tappa">
                           <div class="col-1 shadow border d-flex align-items-center justify-content-center">
                             <p class="m-0">{{tappa.idTappa}}</p>
@@ -187,8 +187,8 @@
                             <div class="dropdown">
                               <button class="btn btn-secondary dropdown-toggle operation-button dropdown-button" type="button" v-bind:id="'button-' + tappa.idTappa" data-bs-toggle="dropdown" aria-expanded="false">Opzioni</button>
                               <div class="dropdown-menu">
-                                <a class="dropdown-item" v-on:click="modificaPunto(tappa.idTappa)" href="#">Modifica</a>
-                                <a class="dropdown-item" v-on:click="cancellaPunto(tappa.idTappa)" href="#">Cancella</a>
+                                <a class="dropdown-item" v-on:click="editStage(tappa.idTappa)" href="#">Modifica</a>
+                                <a class="dropdown-item" v-on:click="deleteStage(tappa.idTappa)" href="#">Cancella</a>
                               </div>
                             </div>
                           </div>
@@ -206,50 +206,39 @@
                             <div class="col h-25 w-100 d-flex align-items-center justify-content-center">
                               <div class="input-group mb-1 w-75">
                                 <span class="input-group-text" id="lat">Latitudine:</span>
-                                <input v-bind:id="'lat-tappa-' + tappa.idTappa" type="text" class="form-control" placeholder="Lat" :value="tappa.coordinates[0]" aria-label="12.12345" aria-describedby="lat" />
+                                <input v-bind:id="'lat-tappa-' + tappa.idTappa" type="text" class="form-control" placeholder="Lat" v-model="tappa.coordinates[0]" aria-label="12.12345" aria-describedby="lat" />
                               </div>
                             </div>
                             <div class="col h-25 w-100 d-flex align-items-center justify-content-center">
                               <div class="input-group mb-1 w-75">
                                 <span class="input-group-text" id="lng">Longitudine:</span>
-                                <input v-bind:id="'lng-tappa-' + tappa.idTappa" type="text" class="form-control" placeholder="Lng" :value="tappa.coordinates[1]" aria-label="12.12345" aria-describedby="lng" />
+                                <input v-bind:id="'lng-tappa-' + tappa.idTappa" type="text" class="form-control" placeholder="Lng" v-model="tappa.coordinates[1]" aria-label="12.12345" aria-describedby="lng" />
                               </div>
                             </div>
                             <div class="col h-25 w-100 d-flex align-items-center justify-content-center">
                               <div class="input-group mb-1 w-75">
                                 <div class="input-group-text">
                                   <input
-                                    v-bind:id="'check-tappa-'+
-                                    tappa.idTappa"
-                                    class="checkbox"
-                                    type="checkbox"
-                                    v-model="tappa.check"
-                                  />
+                                    v-bind:id="'check-tappa-'+ tappa.idTappa" class="checkbox" type="checkbox" v-model="tappa.check"/>
                                 </div>
                                 <input
-                                  v-bind:id="'check-text-tappa-' +
-                                  tappa.idTappa"
-                                  type="text"
-                                  class="form-control"
-                                  :value="tappa.checkText"
-                                  placeholder="Note per il punto"
-                                />
+                                  v-bind:id="'check-text-tappa-' + tappa.idTappa" type="text" class="form-control" v-model="tappa.checkText" placeholder="Note per il punto" />
                               </div>
                             </div>
 
                             <div class="col h-25 w-50 d-flex align-items-center justify-content-center">
-                              <input type="button" class="btn btn-primary" value="Indietro" v-on:click="indietroSenzaSalvarePunto(tappa.idTappa)" />
+                              <input type="button" class="btn btn-primary" value="Indietro" v-on:click="goBackWithoutSavingStage(tappa.idTappa)" />
                             </div>
                             <div class="col h-25 w-50 d-flex align-items-center justify-content-center">
-                              <input type="button" class="btn btn-primary" value="Salva" v-on:click="salvaModificaPunto(tappa.idTappa)" />
+                              <input type="button" class="btn btn-primary" value="Salva" v-on:click="saveEditPoint(tappa.idTappa)" />
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
                     <div class="row align-items-start justify-content-center border side-bar-footer text-white">
-                      <div class="col shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><button class="btn btn-primary h-100 w-100" v-on:click="tornaAVisualizzazione()">Torna indietro</button></div>
-                      <div class="col shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><button class="btn btn-primary h-100 w-100" v-on:click="salvaViaggio()">Salva</button></div>
+                      <div class="col shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><button class="btn btn-primary h-100 w-100" v-on:click="goToStagesList()">Torna indietro</button></div>
+                      <div class="col shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><button class="btn btn-primary h-100 w-100" v-on:click="saveTravel()">Salva</button></div>
                     </div>
                   </div>
                 </div>
@@ -263,7 +252,7 @@
                         <p class="d-block m-0 text-white">{{nomeViaggio}}</p>
                       </div>
                       <div class="col-4 shadow w-30 h-100 d-flex align-items-center justify-content-center m-0 p-0">
-                        <button class="btn btn-primary h-100 w-100" v-on:click="modificaTappe()">Modifica Viaggio</button>
+                        <button class="btn btn-primary h-100 w-100" v-on:click="goToEditStage()">Modifica Viaggio</button>
                       </div>
                     </div>
                     <div class="row justify-content-center overflow-auto side-bar-infos">
@@ -272,7 +261,7 @@
                       </div>
                     </div>
                     <div class="row row-cols-1 justify-content-center overflow-auto side-bar-content">
-                      <div v-bind:id="'visualizza-tappa-' + tappa.idTappa" class="side-bar-travel elenco-tappe" v-for="tappa in tappe" v-on:click="evidenziaTappa(tappa.idTappa)" >
+                      <div v-bind:id="'visualizza-tappa-' + tappa.idTappa" class="side-bar-travel elenco-tappe" v-for="tappa in tappe" v-on:click="highLightStage(tappa.idTappa)" >
                         <div v-bind:id="'visualizza-container-tappa-' + tappa.idTappa" class="row row-cols h-100 container-tappa" >
                           <div class="col-1 shadow border d-flex align-items-center justify-content-center">
                             <p class="m-0">{{tappa.idTappa}}</p>
@@ -289,49 +278,10 @@
                             <p class="m-0">{{tappa.checkText}}</p>
                           </div>
                         </div>
-
-                        <div v-bind:id="'container-modifica-tappa-' +tappa.idTappa" class="row row-cols h-100 container-modifica-tappa">
-                          <div class="col-1 shadow border d-flex align-items-center justify-content-center">
-                            <p class="m-0">{{tappa.idTappa}}</p>
-                          </div>
-                          <div class="col-lg-11 row row-cols-1 shadow border h-100 gx-0">
-                            <div class="col h-25 w-100 d-flex align-items-center justify-content-center">
-                              <div class="input-group-prepend">
-                                <span class="input-group-text" id="basic-addon3">Latitudine:</span>
-                              </div>
-                              <input v-bind:id="'lat-tappa-' + tappa.idTappa" type="text" class="form-control" placeholder="Lat" aria-label="12.12345" aria-describedby="basic-addon3" />
-                            </div>
-                            <div class="col h-25 w-100 d-flex align-items-center justify-content-center">
-                              <div class="input-group-prepend">
-                                <span class="input-group-text" id="basic-addon2">Longitudine:</span>
-                              </div>
-                              <input v-bind:id="'lng-tappa-' + tappa.idTappa" type="text" class="form-control" placeholder="Lng" aria-label="12.12345" aria-describedby="basic-addon2" />
-                            </div>
-                            <div class="col h-25 w-100 d-flex align-items-center justify-content-center">
-                              <div class="input-group-prepend">
-                                <div class="input-group-text">
-                                  <input
-                                    v-bind:id="'check-tappa-' +
-                                    tappa.idTappa"
-                                    type="checkbox"
-                                    aria-label="Segna punto come importante"
-                                  />
-                                </div>
-                              </div>
-                              <input v-bind:id="'check-text-tappa-' + tappa.idTappa" type="text" class="form-control" placeholder="Note per il punto" aria-label="Text input with checkbox"/>
-                            </div>
-                            <div class="col h-25 w-50 d-flex align-items-center justify-content-center">
-                              <input type="button" class="btn btn-primary" value="Indietro" v-on:click="cancellaPunto(tappa.idTappa)" />
-                            </div>
-                            <div class="col h-25 w-50 d-flex align-items-center justify-content-center">
-                              <input type="button" class="btn btn-primary" value="Salva" v-on:click="salvaModificaPunto(tappa.idTappa)" />
-                            </div>
-                          </div>
-                        </div>
                       </div>
                     </div>
                     <div class="row align-items-start justify-content-center border side-bar-footer text-white">
-                      <div class="col shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><button class="btn btn-primary h-100 w-100" v-on:click="tornaAViaggi()">Torna ai viaggi</button></div>
+                      <div class="col shadow h-100 d-flex align-items-center justify-content-center m-0 p-0"><button class="btn btn-primary h-100 w-100" v-on:click="goToTravelList()">Torna ai viaggi</button></div>
                     </div>
                   </div>
                 </div>

@@ -84,7 +84,7 @@ let travelList = new Vue({
     addTravel: function () {
       id = this.nextId;
       let geoJsonNuovoViaggio = new GeoJsonTemplate(String(id), cornersItalia);
-      console.log(geoJsonNuovoViaggio);
+
       date = this.changeDateFormatting(this.date);
       let header = {
         "Content-Type": "application/json",
@@ -102,7 +102,6 @@ let travelList = new Vue({
           this.goToEditStage(data.geoJson.id);
         })
         .catch((err) => {
-          console.log("passo di qua "+ err);
           SignUpLoginLogoutButtons.logout();
         });
     },
@@ -168,7 +167,6 @@ let travelList = new Vue({
           this.retrieveData();
         })
         .catch((err) => {
-          console.log("passo di qua "+ err);
           SignUpLoginLogoutButtons.logout();
         });
     },
@@ -237,7 +235,6 @@ let travelList = new Vue({
           this.drawTravel();
         })
         .catch((err) => {
-          console.log("passo di qua "+ err);
           SignUpLoginLogoutButtons.logout();
         });
     },
@@ -248,7 +245,6 @@ let travelList = new Vue({
       let lngMin = 181;
 
       this.viaggi.forEach(function (viaggio) {
-        console.log(viaggio);
         if (viaggio.corners.latlngMin[0] < latMin) {
           latMin = viaggio.corners.latlngMin[0];
         }
@@ -376,7 +372,6 @@ let stagesList = new Vue({
           this.drawTravel();
         })
         .catch((err) => {
-          console.log("passo di qua "+ err);
           SignUpLoginLogoutButtons.logout();
         });
     },
@@ -497,10 +492,9 @@ let editStage = new Vue({
         this.tappe.push(newTappa);
         this.updateAllTheTravelCoordinates();
       }
-      this.idUltimaTappa = this.tappe.length-1;
+      this.idUltimaTappa = this.tappe.length - 1;
     },
     deleteStage: function (id) {
-      console.log(id);
       this.modificato = true;
       this.tappe.splice(id, 1);
       for (let i = 0; i < this.tappe.length; ++i) {
@@ -518,9 +512,9 @@ let editStage = new Vue({
           this.viaggio.features[i].id = this.viaggio.features[i].id - 1;
         }
       }
-      
-      this.idUltimaTappa = this.tappe.length-1;
-      console.log(this.tappe);
+
+      this.idUltimaTappa = this.tappe.length - 1;
+
       this.$forceUpdate();
       this.updateAllTheTravelCoordinates();
       clearCirclesLayer();
@@ -541,7 +535,7 @@ let editStage = new Vue({
       clearCirclesLayer();
 
       this.tappe.forEach(function (tappa) {
-        if (tappa.idTappa === id && !isNaN(tappa.coordinates[0] ) && !isNaN(tappa.coordinates[1])) {
+        if (tappa.idTappa === id && !isNaN(tappa.coordinates[0]) && !isNaN(tappa.coordinates[1])) {
           let circle = L.circleMarker([tappa.coordinates[0], tappa.coordinates[1]], {
             radius: 10,
             color: "red",
@@ -599,9 +593,9 @@ let editStage = new Vue({
         this.addStageAtTheEnd(latlng.lat, latlng.lng);
       } else {
         //alert("inserire i dati nel form prima di aggiungere un nuovo punto");
-        let id= parseInt(selectedElem.querySelector("div>p").textContent);
-        this.tappe[id].coordinates[1]=latlng.lng;
-        this.tappe[id].coordinates[0]=latlng.lat;
+        let id = parseInt(selectedElem.querySelector("div>p").textContent);
+        this.tappe[id].coordinates[1] = latlng.lng;
+        this.tappe[id].coordinates[0] = latlng.lat;
         this.$forceUpdate();
         //selectedElem.querySelector("#lat + input").value=latlng.lat;
         //selectedElem.querySelector("#lng + input").value=latlng.lng;
@@ -640,7 +634,6 @@ let editStage = new Vue({
           this.drawTravel();
         })
         .catch((err) => {
-          console.log("passo di qua "+ err);
           SignUpLoginLogoutButtons.logout();
         });
     },
@@ -724,7 +717,7 @@ let editStage = new Vue({
     saveTravel: function () {
       this.saveMeansOfTransport();
       this.saveTravelName();
-      console.log("sto salvando");
+
       let id = parseInt(this.viaggio.id);
       let header = {
         "Content-Type": "application/json",
@@ -742,7 +735,6 @@ let editStage = new Vue({
           this.goToStagesList();
         })
         .catch((err) => {
-          console.log("passo di qua "+ err);
           SignUpLoginLogoutButtons.logout();
         });
     },
@@ -798,7 +790,7 @@ let editStage = new Vue({
           checkText: checkText,
         });
       }
-      this.idUltimaTappa = this.tappe.length-1;
+      this.idUltimaTappa = this.tappe.length - 1;
       this.$forceUpdate();
     },
     goToStagesList: function () {
@@ -811,7 +803,7 @@ let editStage = new Vue({
           divViaggi.style.display = "block";
           this.viaggio = [];
           this.tappe = [];
-          clearCirclesLayer(); 
+          clearCirclesLayer();
           clearGeoJsonLayer();
           this.removeMapListener();
           stagesList.retrieveData(this.id);
@@ -943,7 +935,6 @@ let loginWindows = new Vue({
           }
         })
         .catch((err) => {
-          console.log("passo di qua "+ err);
           SignUpLoginLogoutButtons.logout();
         });
 
@@ -988,7 +979,6 @@ let loginWindows = new Vue({
             travelList.retrieveData();
           })
           .catch((err) => {
-            console.log("passo di qua" +err);
             SignUpLoginLogoutButtons.logout();
           });
       } else {
