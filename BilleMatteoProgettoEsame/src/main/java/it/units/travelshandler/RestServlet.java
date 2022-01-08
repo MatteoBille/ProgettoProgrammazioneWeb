@@ -19,22 +19,22 @@ import javax.xml.bind.DatatypeConverter;
 public class RestServlet {
 
     private static final String SECRET_KEY = "Yn2kjibddFAWtnPJ2AFlL8WXmohJMCvigQggaEypa5E=";
-    @Context ServletContext context;
+    @Context
+    ServletContext context;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getTravels( @QueryParam("data") String data,@HeaderParam("Authorization") String auth) throws SQLException {
-        String idUser="";
-        if(auth != null && auth.split(" ")[0].equals("Bearer")) {
+    public Response getTravels(@QueryParam("data") String data, @HeaderParam("Authorization") String auth) throws SQLException {
+        String idUser = "";
+        if (auth != null && auth.split(" ")[0].equals("Bearer")) {
             try {
                 idUser = checkJwt(auth.split(" ")[1]);
             } catch (Exception e) {
                 return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"invalid_token\"}").build();
             }
-        }else{
+        } else {
             return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"Authentication token not present\"}").build();
         }
-
         String urlConnection = context.getInitParameter("DatabaseUrl");
         Connection conn = sqliteConnection.connect(urlConnection);
 
@@ -42,9 +42,7 @@ public class RestServlet {
         JSONArray geoJsonResponseArray = new JSONArray();
 
 
-
-
-        String selectUserTravelsByDate = "SELECT * FROM Viaggi WHERE dataViaggio = \""+data+"\" AND idUtente= "+idUser+";";
+        String selectUserTravelsByDate = "SELECT * FROM Viaggi WHERE dataViaggio = \"" + data + "\" AND idUtente= " + idUser + ";";
 
         String selectMaxIdViaggio = "SELECT MAX(idViaggio) as idViaggio FROM Viaggi;";
 
@@ -53,7 +51,7 @@ public class RestServlet {
             ResultSet rs = stmt.executeQuery(selectUserTravelsByDate);
             while (rs.next()) {
                 JSONObject jsonObject = new JSONObject(rs.getString("GeoJsonData"));
-                jsonObject.put("id",Integer.toString(rs.getInt("idViaggio")));
+                jsonObject.put("id", Integer.toString(rs.getInt("idViaggio")));
                 geoJsonResponseArray.put(jsonObject);
             }
 
@@ -66,33 +64,33 @@ public class RestServlet {
 
             ResultSet rs = stmt.executeQuery(selectMaxIdViaggio);
             while (rs.next()) {
-                response.put("id",rs.getInt("idViaggio"));
+                response.put("id", rs.getInt("idViaggio"));
             }
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
         conn.close();
-        String newToken= SetToken(auth.split(" ")[1],Integer.parseInt(idUser));
+        String newToken = SetToken(auth.split(" ")[1], Integer.parseInt(idUser));
 
 
-        response.put("geoJsons",geoJsonResponseArray);
-        response.put("jwtToken",newToken);
-        return Response.ok(response.toString().replaceAll("\\\\","")).build();
+        response.put("geoJsons", geoJsonResponseArray);
+        response.put("jwtToken", newToken);
+        return Response.ok(response.toString().replaceAll("\\\\", "")).build();
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addTravel(@QueryParam("data") String data,@HeaderParam("Authorization") String auth,String requestBody) throws SQLException {
+    public Response addTravel(@QueryParam("data") String data, @HeaderParam("Authorization") String auth, String requestBody) throws SQLException {
 
-        String idUser="";
-        if(auth != null && auth.split(" ")[0].equals("Bearer")) {
+        String idUser = "";
+        if (auth != null && auth.split(" ")[0].equals("Bearer")) {
             try {
                 idUser = checkJwt(auth.split(" ")[1]);
             } catch (Exception e) {
                 return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"invalid_token\"}").build();
             }
-        }else{
+        } else {
             return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"Authentication token not present\"}").build();
         }
 
@@ -100,11 +98,10 @@ public class RestServlet {
         Connection conn = sqliteConnection.connect(urlConnection);
 
 
-
-        JSONObject jsonRequest=new JSONObject(requestBody);
+        JSONObject jsonRequest = new JSONObject(requestBody);
         String id = jsonRequest.getString("id");
-        JSONObject geoJsonResponse=new JSONObject();
-        String insertIntoViaggiNewTravel = "INSERT INTO Viaggi VALUES("+id+","+idUser+",'"+requestBody+"','"+data+"');";
+        JSONObject geoJsonResponse = new JSONObject();
+        String insertIntoViaggiNewTravel = "INSERT INTO Viaggi VALUES(" + id + "," + idUser + ",'" + requestBody + "','" + data + "');";
 
         try (Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(insertIntoViaggiNewTravel);
@@ -112,36 +109,36 @@ public class RestServlet {
             throwables.printStackTrace();
         }
 
-        String querySelect = "SELECT idViaggio,GeoJsonData FROM Viaggi WHERE idViaggio="+id+";";
+        String querySelect = "SELECT idViaggio,GeoJsonData FROM Viaggi WHERE idViaggio=" + id + ";";
         try (Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(querySelect);
-            geoJsonResponse= new JSONObject(rs.getString("GeoJsonData"));
-            geoJsonResponse.put("id",Integer.toString(rs.getInt("idViaggio")));
+            geoJsonResponse = new JSONObject(rs.getString("GeoJsonData"));
+            geoJsonResponse.put("id", Integer.toString(rs.getInt("idViaggio")));
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
 
         conn.close();
-        String newToken= SetToken(auth.split(" ")[1],Integer.parseInt(idUser));
+        String newToken = SetToken(auth.split(" ")[1], Integer.parseInt(idUser));
         JSONObject response = new JSONObject();
 
-        response.put("geoJson",geoJsonResponse);
-        response.put("jwtToken",newToken);
+        response.put("geoJson", geoJsonResponse);
+        response.put("jwtToken", newToken);
         return Response.ok(response.toString()).build();
     }
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteTravel(String requestBody,@HeaderParam("Authorization") String auth) throws SQLException {
-        String idUser="";
-        if(auth != null && auth.split(" ")[0].equals("Bearer")) {
+    public Response deleteTravel(String requestBody, @HeaderParam("Authorization") String auth) throws SQLException {
+        String idUser = "";
+        if (auth != null && auth.split(" ")[0].equals("Bearer")) {
             try {
                 idUser = checkJwt(auth.split(" ")[1]);
             } catch (Exception e) {
                 return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"invalid_token\"}").build();
             }
-        }else{
+        } else {
             return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"Authentication token not present\"}").build();
         }
 
@@ -149,12 +146,12 @@ public class RestServlet {
         Connection conn = sqliteConnection.connect(urlConnection);
 
 
-        JSONObject jsonRequest=new JSONObject(requestBody);
+        JSONObject jsonRequest = new JSONObject(requestBody);
         String idViaggio = jsonRequest.getString("id");
 
-        JSONObject geoJsonResponse=new JSONObject();
+        JSONObject geoJsonResponse = new JSONObject();
 
-        String deleteFromViaggiByIdViaggio = "DELETE FROM Viaggi WHERE idViaggio="+idViaggio+";";
+        String deleteFromViaggiByIdViaggio = "DELETE FROM Viaggi WHERE idViaggio=" + idViaggio + ";";
 
         try (Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(deleteFromViaggiByIdViaggio);
@@ -163,30 +160,29 @@ public class RestServlet {
         }
 
 
-
         conn.close();
-        String newToken= SetToken(auth.split(" ")[1],Integer.parseInt(idUser));
+        String newToken = SetToken(auth.split(" ")[1], Integer.parseInt(idUser));
 
         JSONObject response = new JSONObject();
 
-        response.put("deleted","ok");
-        response.put("jwtToken",newToken);
+        response.put("deleted", "ok");
+        response.put("jwtToken", newToken);
         return Response.ok(response.toString()).build();
     }
 
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getTravelById(@PathParam("id") int idViaggio,@HeaderParam("Authorization") String auth) throws SQLException {
-        String idUser="";
-        if(auth != null && auth.split(" ")[0].equals("Bearer")) {
+    public Response getTravelById(@PathParam("id") int idViaggio, @HeaderParam("Authorization") String auth) throws SQLException {
+        String idUser = "";
+        if (auth != null && auth.split(" ")[0].equals("Bearer")) {
             try {
                 idUser = checkJwt(auth.split(" ")[1]);
             } catch (Exception e) {
                 return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"invalid_token\"}").build();
             }
 
-        }else{
+        } else {
             return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"Authentication token not present\"}").build();
         }
 
@@ -194,27 +190,27 @@ public class RestServlet {
         String urlConnection = context.getInitParameter("DatabaseUrl");
         Connection conn = sqliteConnection.connect(urlConnection);
 
-        JSONObject geoJsonResponse=null;
+        JSONObject geoJsonResponse = null;
 
 
-        String selectViaggiByIdViaggio = "SELECT IdViaggio,GeoJsonData FROM Viaggi WHERE idViaggio="+idViaggio+";";
+        String selectViaggiByIdViaggio = "SELECT IdViaggio,GeoJsonData FROM Viaggi WHERE idViaggio=" + idViaggio + ";";
 
         try (Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(selectViaggiByIdViaggio);
-            geoJsonResponse= new JSONObject(rs.getString("GeoJsonData"));
-            geoJsonResponse.put("id",Integer.toString(rs.getInt("idViaggio")));
+            geoJsonResponse = new JSONObject(rs.getString("GeoJsonData"));
+            geoJsonResponse.put("id", Integer.toString(rs.getInt("idViaggio")));
 
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
         conn.close();
-        String newToken= SetToken(auth.split(" ")[1],Integer.parseInt(idUser));
+        String newToken = SetToken(auth.split(" ")[1], Integer.parseInt(idUser));
 
         JSONObject response = new JSONObject();
 
-        response.put("geoJson",geoJsonResponse);
-        response.put("jwtToken",newToken);
+        response.put("geoJson", geoJsonResponse);
+        response.put("jwtToken", newToken);
 
         return Response.ok(response.toString()).build();
     }
@@ -222,24 +218,24 @@ public class RestServlet {
     @PUT
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateTravelById(@PathParam("id") int idViaggio,String geoJson,@HeaderParam("Authorization") String auth) throws SQLException {
-        String idUser="";
-        if(auth != null && auth.split(" ")[0].equals("Bearer")) {
+    public Response updateTravelById(@PathParam("id") int idViaggio, String geoJson, @HeaderParam("Authorization") String auth) throws SQLException {
+        String idUser = "";
+        if (auth != null && auth.split(" ")[0].equals("Bearer")) {
             try {
                 idUser = checkJwt(auth.split(" ")[1]);
             } catch (Exception e) {
                 return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"invalid_token\"}").build();
             }
-        }else{
+        } else {
             return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"Authentication token not present\"}").build();
         }
 
         String urlConnection = context.getInitParameter("DatabaseUrl");
         Connection conn = sqliteConnection.connect(urlConnection);
 
-        JSONObject geoJsonResponse=null;
-        String updateViaggio = "UPDATE Viaggi SET GeoJsonData ='"+geoJson+"' WHERE idViaggio="+idViaggio+";";
-        String selectViaggioByidViaggio = "SELECT IdViaggio,GeoJsonData FROM Viaggi WHERE IdViaggio="+idViaggio+";";
+        JSONObject geoJsonResponse = null;
+        String updateViaggio = "UPDATE Viaggi SET GeoJsonData ='" + geoJson + "' WHERE idViaggio=" + idViaggio + ";";
+        String selectViaggioByidViaggio = "SELECT IdViaggio,GeoJsonData FROM Viaggi WHERE IdViaggio=" + idViaggio + ";";
 
         try (Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(updateViaggio);
@@ -249,46 +245,46 @@ public class RestServlet {
 
         try (Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(selectViaggioByidViaggio);
-            geoJsonResponse= new JSONObject(rs.getString("GeoJsonData"));
-            geoJsonResponse.put("id",Integer.toString(rs.getInt("idViaggio")));
+            geoJsonResponse = new JSONObject(rs.getString("GeoJsonData"));
+            geoJsonResponse.put("id", Integer.toString(rs.getInt("idViaggio")));
 
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
         conn.close();
-        String newToken= SetToken(auth.split(" ")[1],Integer.parseInt(idUser));
+        String newToken = SetToken(auth.split(" ")[1], Integer.parseInt(idUser));
 
         JSONObject response = new JSONObject();
 
-        response.put("geoJson",geoJsonResponse);
-        response.put("jwtToken",newToken);
+        response.put("geoJson", geoJsonResponse);
+        response.put("jwtToken", newToken);
         return Response.ok(response.toString()).build();
     }
 
 
-    public String checkJwt(String jwt) throws Exception{
+    public String checkJwt(String jwt) throws Exception {
         String urlConnection = context.getInitParameter("DatabaseUrl");
 
         Connection conn = sqliteConnection.connect(urlConnection);
-        Claims claims=null;
+        Claims claims = null;
         try {
-        //This line will throw an exception if it is not a signed JWS (as expected)
-         claims = Jwts.parser()
-                .setSigningKey(DatatypeConverter.parseBase64Binary(SECRET_KEY))
-                .parseClaimsJws(jwt).getBody();
+            //This line will throw an exception if it is not a signed JWS (as expected)
+            claims = Jwts.parser()
+                    .setSigningKey(DatatypeConverter.parseBase64Binary(SECRET_KEY))
+                    .parseClaimsJws(jwt).getBody();
         } catch (Exception e) {
-           throw e;
+            throw e;
         }
 
-        String queryVerificaId = "SELECT NomeUtente FROM Utenti WHERE idUtente=\""+claims.get("idUtente")+"\";";
+        String queryVerificaId = "SELECT NomeUtente FROM Utenti WHERE idUtente=\"" + claims.get("idUtente") + "\";";
 
 
         try (Statement stmt = conn.createStatement()) {
 
             ResultSet rs = stmt.executeQuery(queryVerificaId);
             if (rs.next() != false) {
-                if(rs.getString("NomeUtente").equals(claims.getSubject())){
+                if (rs.getString("NomeUtente").equals(claims.getSubject())) {
                     return claims.get("idUtente").toString();
                 }
             }
@@ -304,7 +300,6 @@ public class RestServlet {
     }
 
 
-
     public String SetToken(String jwtOld, int id) {
 
 
@@ -313,10 +308,8 @@ public class RestServlet {
                 .parseClaimsJws(jwtOld).getBody();
 
 
-
-
-        Duration remainingTime = Duration.between(claims.getExpiration().toInstant(),Instant.now());
-        if(remainingTime.getSeconds()<300){
+        Duration remainingTime = Duration.between(claims.getExpiration().toInstant(), Instant.now());
+        if (remainingTime.getSeconds() < 300) {
             return jwtOld;
         }
 
