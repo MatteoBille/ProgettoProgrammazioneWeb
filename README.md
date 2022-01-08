@@ -19,10 +19,10 @@ Basato su Tomcat 9 e SQLite.
 	- possibilità di modificare il viaggio attraverso il bottone `Modifica Viaggio`
 	- ***Extra***:
 		- Se si clicca sulla casella di una tappa comparirà un pallino sulla tappa.
-		- Se la tappa è importante la tappa viene segnata con un segnalino.
+		- Se la tappa è importante la tappa viene segnata con un pin.
 - **Modifica tappe di un viaggio:**
 	- possibilità di modificare/cancellare le tappe con il menù dropdown `Opzioni`.
 	- possibilità di creare una nuova tappa in coda a quelle esistenti sia con il bottone `Aggiungi tappa` sia cliccando nel punto desiderato della mappa.
-	- possibilità di impostare una tappa come importante. Dal dropdown menù  `Opzioni` selezionare `modifica` e mettere il check sulla checkbox, e inoltre possibile aggiungere un piccolo testo da visualizzare nella schermata di visualizzazione.
+	- possibilità di impostare una tappa come importante. Dal dropdown menù `Opzioni` selezionare `modifica` e mettere il check sulla checkbox, è inoltre possibile aggiungere un piccolo testo da visualizzare nella schermata di visualizzazione.
 	- Possibilità di cambiare nome al viaggio
 	- Possibilità di cambiare mezzo di trasporto del viaggio
