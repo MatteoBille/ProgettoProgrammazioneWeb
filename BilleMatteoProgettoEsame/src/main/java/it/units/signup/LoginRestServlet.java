@@ -72,8 +72,7 @@ public class LoginRestServlet {
                 }
             }
         }
-        response.put("message","NotAccepted");
-        return Response.ok(response.toString()).build();
+        return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"Authentication fails\"}").build();
 
     }
 
