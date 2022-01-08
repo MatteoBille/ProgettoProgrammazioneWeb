@@ -1,4 +1,4 @@
-package it.units.signup;
+package it.units.loginsignup;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -17,63 +17,52 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
 
-@Path("/login")
-public class LoginRestServlet {
+@Path("/SignUp")
+public class SignUpRestServlet {
 
-    private final String SECRET_KEY = "Yn2kjibddFAWtnPJ2AFlL8WXmohJMCvigQggaEypa5E=";
-
+    private static final String SECRET_KEY = "Yn2kjibddFAWtnPJ2AFlL8WXmohJMCvigQggaEypa5E=";
     @Context ServletContext context;
-
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response loginUser(@Context ContainerRequestContext ctx) throws SQLException {
-
+    public Response SetNewUser(@Context ContainerRequestContext ctx) throws SQLException {
         String urlConnection = context.getInitParameter("DatabaseUrl");
         Connection conn = sqliteConnection.connect(urlConnection);
 
-        String jwt = "";
-        JSONObject response =new JSONObject();
         if (ctx.getHeaders().get("Authorization") != null) {
             List auth = ctx.getHeaders().get("Authorization");
             String[] request = auth.get(0).toString().split(" ");
-
-            if (request[0].equals(("Basic"))) {
+            if (request[0].equals("Basic")) {
                 byte[] decodedBytes = Base64.getDecoder().decode(request[1]);
                 String decodedString = new String(decodedBytes);
-                String[] authStrings = decodedString.split("\\.");
+                String[] AuthStrings = decodedString.split("\\.");
 
-                if (authStrings.length == 2) {
 
-                    String query2 = "SELECT * FROM Utenti WHERE NomeUtente = \"" + authStrings[0] + "\";";
-                    try (Statement stmt = conn.createStatement()) {
+                String queryInserimentoNuovoUtente = "INSERT INTO Utenti(NomeUtente,Password) VALUES(\"" + AuthStrings[0] + "\",\"" + AuthStrings[1] + "\")";
+                String retrieveLastId = "SELECT seq FROM sqlite_sequence WHERE name=\"Utenti\"";
 
-                        ResultSet rs = stmt.executeQuery(query2);
-                        if (rs.next() != false) {
+                int idUtente = -1;
+                try (Statement stmt = conn.createStatement()) {
 
-                            String password = rs.getString("Password");
-                            int id = rs.getInt("idUtente");
-                            if (password.equals(authStrings[1])) {
-                                jwt = SetToken(authStrings[0], id);
-                                response.put("jwtToken", jwt);
-                                response.put("message","Accepted");
-                                return Response.ok(response.toString()).build();
-                            }
-                        }
-                    } catch (SQLException throwables) {
-                        throwables.printStackTrace();
-                    }
-                    try {
-                        conn.close();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
+                    stmt.executeUpdate(queryInserimentoNuovoUtente);
+
+                    ResultSet rs = stmt.executeQuery(retrieveLastId);
+                    if (rs.next() != false) {
+                        idUtente = rs.getInt("seq");
                     }
 
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
                 }
+                conn.close();
+                String jwt = SetToken(AuthStrings[0], idUtente);
+                JSONObject response = new JSONObject();
+                response.put("jwtToken", jwt);
+
+                return Response.ok(response.toString()).build();
             }
         }
-        return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"error\":\"Authentication fails\"}").build();
-
+        return Response.status(500).build();
     }
 
     public String SetToken(String name, int id) {
